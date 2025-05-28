@@ -75,7 +75,7 @@ const createWorkerAsyncFunction = <T extends (data: any) => any>(fn: T, deps: st
 };
 
 const decode = createWorkerAsyncFunction(qrWorkerMethod, [
-  'https://cdn.jsdelivr.net/npm/jsqr@1.2.0/dist/jsQR.min.js',
+  'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js',
 ]);
 
 export function useWebQRScanner(
