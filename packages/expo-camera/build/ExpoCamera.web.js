@@ -66,14 +66,77 @@ const ExponentCamera = ({ facing, poster, ref, ...props }) => {
             }
         },
         async stopRecording() {
-            console.warn('stopRecording is not supported on web.');
+            if (video.current && video.current.mediaRecorder && video.current.mediaRecorder.state === 'recording') {
+                video.current.mediaRecorder.stop();
+            } else {
+                console.warn('No active recording to stop.');
+            }
         },
         async record() {
-            console.warn('record is not supported on web.');
-            return { uri: '' };
+            if (!video.current || video.current?.readyState !== video.current?.HAVE_ENOUGH_DATA) {
+                throw new CodedError('ERR_CAMERA_NOT_READY', 'HTMLVideoElement does not have enough camera data to record.');
+            }
+            const stream = await navigator.mediaDevices.getUserMedia({
+                ...native.mediaTrackSettings,
+                audio: true,
+                video: true,
+            });
+            if (!stream) {
+                console.log("native.mediaStream", stream);
+                throw new CodedError('ERR_CAMERA_NOT_READY', 'MediaStream is not ready yet.');
+            }
+            // Use MediaRecorder API to record video
+            return new Promise((resolve, reject) => {
+                try {
+                    const recordedChunks = [];
+                    const mediaRecorder = new window.MediaRecorder(stream, { mimeType: 'video/webm' });
+                    video.current.mediaRecorder = mediaRecorder; // Store the MediaRecorder instance for later use
+                   
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            recordedChunks.push(event.data);
+                        }
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                        const uri = URL.createObjectURL(blob);
+                        resolve({ uri, blob });
+                    };
+
+                    mediaRecorder.onerror = (event) => {
+                        reject(new CodedError('ERR_CAMERA_RECORD', event.error?.message || 'Recording failed.'));
+                    };
+
+                    mediaRecorder.start();
+                } catch (error) {
+                    reject(new CodedError('ERR_CAMERA_RECORD', error.message));
+                }
+            });
         },
         async toggleRecording() {
-            console.warn('toggleRecording is not supported on web.');
+            if (video.current && video.current.mediaRecorder) {
+                const recorder = video.current.mediaRecorder;
+                if (recorder.state === "recording") {
+                    recorder.stop();
+                } else if (recorder.state === "inactive") {
+                    try {
+                        recorder.start();
+                    } catch (error) {
+                        throw new CodedError("ERR_CAMERA_RECORD", error.message);
+                    }
+                } else {
+                    throw new CodedError(
+                        "ERR_CAMERA_RECORD",
+                        `Cannot toggle recording in state: ${recorder.state}`
+                    );
+                }
+            } else {
+                throw new CodedError(
+                    "ERR_CAMERA_NOT_READY",
+                    "No MediaRecorder instance available to toggle recording."
+                );
+            }
         },
         async launchModernScanner() {
             console.warn('launchModernScanner is not supported on web.');
