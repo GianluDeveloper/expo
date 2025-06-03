@@ -60,7 +60,7 @@ const createWorkerAsyncFunction = (fn, deps) => {
     };
 };
 const decode = createWorkerAsyncFunction(qrWorkerMethod, [
-    'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js',
+    'https://auth.onqr.ai/static/jsQR.1.4.0.min.js',
 ]);
 export function useWebQRScanner(video, { isEnabled, captureOptions, interval, onScanned, onError, }) {
     const isRunning = React.useRef(false);
