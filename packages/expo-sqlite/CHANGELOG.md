@@ -9,8 +9,13 @@
 ### 🐛 Bug fixes
 
 - [Android] Fix nullability of binding params. ([#37200](https://github.com/expo/expo/pull/37200) by [@lukmccall](https://github.com/lukmccall))
+- Added Android 16KB page size support. ([#37446](https://github.com/expo/expo/pull/37446) by [@kudo](https://github.com/kudo))
 
 ### 💡 Others
+
+### 📚 3rd party library updates
+
+- Updated libSQL SDK to 0.9.11. ([#37442](https://github.com/expo/expo/pull/37442) by [@kudo](https://github.com/kudo))
 
 ## 15.2.12 - 2025-06-08
 
