@@ -333,6 +333,12 @@ export type Reminder = {
      */
     dueDate?: string | Date;
     /**
+     * Indicates if the reminder has a time specified for the due date.
+     *
+     * @platform ios
+     */
+    allDay?: boolean;
+    /**
      * Indicates whether or not the task has been completed.
      */
     completed?: boolean;
@@ -585,7 +591,7 @@ export type DialogEventResult = {
     /**
      * The ID of the event that was created or edited. On Android, this is always `null`.
      *
-     * On iOS, this is a string when user confirms the creation or editing of an event. Otherwise, it's `null`.
+     * On iOS, this is a string when permissions are granted and user confirms the creation or editing of an event. Otherwise, it's `null`.
      * */
     id: string | null;
 };

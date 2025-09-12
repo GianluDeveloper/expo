@@ -8,14 +8,93 @@
 
 ### 🐛 Bug fixes
 
+### 💡 Others
+
+## 7.0.11 — 2025-09-11
+
+### 🐛 Bug fixes
+
+- [Android] Fix desynchronization issue between UI and state. ([#39553](https://github.com/expo/expo/pull/39553) by [@lukmccall](https://github.com/lukmccall))
+- [iOS] Fix UI on iPad. ([#39549](https://github.com/expo/expo/pull/39549) by [@alanjhughes](https://github.com/alanjhughes))
+
+## 7.0.10 — 2025-09-10
+
+_This version does not introduce any user-facing changes._
+
+## 7.0.9 — 2025-09-08
+
+_This version does not introduce any user-facing changes._
+
+## 7.0.8 — 2025-09-02
+
+_This version does not introduce any user-facing changes._
+
+## 7.0.7 — 2025-08-31
+
+_This version does not introduce any user-facing changes._
+
+## 7.0.6 — 2025-08-28
+
+_This version does not introduce any user-facing changes._
+
+## 7.0.5 — 2025-08-27
+
+_This version does not introduce any user-facing changes._
+
+## 7.0.4 — 2025-08-25
+
+_This version does not introduce any user-facing changes._
+
+## 7.0.3 — 2025-08-18
+
+### 💡 Others
+
+- [ios] Wrap system color references for dev client. ([#38912](https://github.com/expo/expo/pull/38912) by [@douglowder](https://github.com/douglowder))
+- [iOS] Change Constants to Constant/Property. ([#38926](https://github.com/expo/expo/pull/38926) by [@jakex7](https://github.com/jakex7))
+
+## 7.0.2 — 2025-08-16
+
+### 🐛 Bug fixes
+
+- [ios] Prevent crash when getting app icon. ([#38888](https://github.com/expo/expo/pull/38888) by [@douglowder](https://github.com/douglowder))
+
+## 7.0.1 — 2025-08-15
+
+_This version does not introduce any user-facing changes._
+
+## 7.0.0 — 2025-08-13
+
+### 🎉 New features
+
+- [iOS] Migrate dev menu UI to SwiftUI ([#37414](https://github.com/expo/expo/pull/37414) by [@alanjhughes](https://github.com/alanjhughes))
+- [Android] Add floating action button that pulls up the dev menu. ([#38246](https://github.com/expo/expo/pull/38246) by [@behenate](https://github.com/behenate))
+- [iOS] Partial support for Apple TV. ([#38388](https://github.com/expo/expo/pull/38388) by [@douglowder](https://github.com/douglowder))
+
+### 🐛 Bug fixes
+
 - [Android] Fix Fast Refresh toggled off by default on Android. ([#37132](https://github.com/expo/expo/pull/37132) by [@coolsoftwaretyler](https://github.com/coolsoftwaretyler))
 - [iOS] Fix missing CDP headers when using static frameworks. ([#37448](https://github.com/expo/expo/pull/37448) by [@alanjhughes](https://github.com/alanjhughes))
 
 ### 💡 Others
 
+- Fixed release build error on Android. ([#37579](https://github.com/expo/expo/pull/37579) by [@kudo](https://github.com/kudo))
+- [Android] Implement new design for the floating action button. ([#38497](https://github.com/expo/expo/pull/38497) by [@behenate](https://github.com/behenate))
+
 ### ⚠️ Notices
 
 - Added support for React Native 0.80.x. ([#37400](https://github.com/expo/expo/pull/37400) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+
+## 6.1.14 - 2025-07-03
+
+_This version does not introduce any user-facing changes._
+
+## 6.1.13 - 2025-07-02
+
+_This version does not introduce any user-facing changes._
+
+## 6.1.12 - 2025-06-18
+
+_This version does not introduce any user-facing changes._
 
 ## 6.1.11 - 2025-06-04
 

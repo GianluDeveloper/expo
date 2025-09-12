@@ -223,12 +223,14 @@ public class CalendarModule: Module {
         reminder.url = URL(string: url)
       }
 
+      let isAllDay = details.allDay ?? false
+
       if let startDate {
-        reminder.startDateComponents = createDateComponents(for: startDate)
+        reminder.startDateComponents = createDateComponents(for: startDate, allDay: isAllDay)
       }
 
       if let dueDate {
-        reminder.dueDateComponents = createDateComponents(for: dueDate)
+        reminder.dueDateComponents = createDateComponents(for: dueDate, allDay: isAllDay)
       }
 
       if let completionDate {
@@ -303,7 +305,9 @@ public class CalendarModule: Module {
     }
 
     AsyncFunction("createEventInCalendarAsync") { (event: Event, promise: Promise) in
-      try checkCalendarPermissions()
+      if #unavailable(iOS 17.0) {
+        try checkCalendarPermissions()
+      }
       guard calendarDialogDelegate == nil else {
         throw EventDialogInProgressException()
       }

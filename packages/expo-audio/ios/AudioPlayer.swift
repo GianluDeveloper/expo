@@ -18,6 +18,7 @@ public class AudioPlayer: SharedRef<AVPlayer> {
     ref.rate == 0.0
   }
   var samplingEnabled = false
+  var keepAudioSessionActive = false
 
   // MARK: Observers
   private var timeToken: Any?
@@ -27,6 +28,8 @@ public class AudioPlayer: SharedRef<AVPlayer> {
   private var audioProcessor: AudioTapProcessor?
   private var tapInstalled = false
   private var shouldInstallAudioTap = false
+  weak var owningRegistry: AudioComponentRegistry?
+  var onPlaybackComplete: (() -> Void)?
 
   var duration: Double {
     ref.currentItem?.duration.seconds ?? 0.0
@@ -80,6 +83,7 @@ public class AudioPlayer: SharedRef<AVPlayer> {
 
   func currentStatus() -> [String: Any] {
     let currentDuration = ref.status == .readyToPlay ? duration : 0.0
+    let rate = isPlaying ? ref.rate : currentRate
     return [
       "id": id,
       "currentTime": currentTime,
@@ -92,7 +96,7 @@ public class AudioPlayer: SharedRef<AVPlayer> {
       "loop": isLooping,
       "didJustFinish": false,
       "isLoaded": isLoaded,
-      "playbackRate": ref.rate,
+      "playbackRate": rate,
       "shouldCorrectPitch": shouldCorrectPitch,
       "isBuffering": isBuffering
     ]
@@ -104,6 +108,21 @@ public class AudioPlayer: SharedRef<AVPlayer> {
       new
     }
     self.emit(event: AudioConstants.playbackStatus, arguments: arguments)
+  }
+
+  func seekTo(seconds: Double, toleranceMillisBefore: Double? = nil, toleranceMillisAfter: Double? = nil) async {
+    let time = CMTime(seconds: seconds, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+    let toleranceBefore = toleranceMillisBefore.map {
+      CMTime(seconds: $0 / 1000.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+    } ?? CMTime.positiveInfinity
+    let toleranceAfter = toleranceMillisAfter.map {
+      CMTime(seconds: $0 / 1000.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+    } ?? CMTime.positiveInfinity
+
+    await ref.currentItem?.seek(to: time, toleranceBefore: toleranceBefore, toleranceAfter: toleranceAfter	)
+    updateStatus(with: [
+      "currentTime": currentTime
+    ])
   }
 
   private func setupPublisher() {
@@ -246,6 +265,7 @@ public class AudioPlayer: SharedRef<AVPlayer> {
           "currentTime": self.duration,
           "didJustFinish": true
         ])
+        self.onPlaybackComplete?()
       }
     }
   }
@@ -270,8 +290,7 @@ public class AudioPlayer: SharedRef<AVPlayer> {
   }
 
   public override func sharedObjectWillRelease() {
-    AudioComponentRegistry.shared.remove(self)
-
+    owningRegistry?.remove(self)
     cancellables.removeAll()
 
     if samplingEnabled {

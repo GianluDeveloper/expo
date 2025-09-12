@@ -23,6 +23,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -48,6 +49,7 @@ class AudioPlayer(
   var isPaused = false
   var isMuted = false
   var previousVolume = 1f
+  var onPlaybackStateChange: ((Boolean) -> Unit)? = null
 
   private var playerScope = CoroutineScope(Dispatchers.Default)
   private var samplingEnabled = false
@@ -91,6 +93,9 @@ class AudioPlayer(
         delay(updateInterval.toLong())
       }
     }
+      .onStart {
+        sendPlayerUpdate()
+      }
       .onEach {
         if (playing) {
           sendPlayerUpdate()
@@ -105,6 +110,7 @@ class AudioPlayer(
       playerScope.launch {
         sendPlayerUpdate(mapOf("playing" to isPlaying))
       }
+      onPlaybackStateChange?.invoke(isPlaying)
     }
 
     override fun onIsLoadingChanged(isLoading: Boolean) {
@@ -140,6 +146,13 @@ class AudioPlayer(
     } else {
       visualizer?.release()
       visualizer = null
+    }
+  }
+
+  fun seekTo(seekTime: Double) {
+    ref.seekTo((seekTime * 1000L).toLong())
+    playerScope.launch {
+      sendPlayerUpdate()
     }
   }
 

@@ -44,7 +44,7 @@ If your project does not contain **android** and **ios** directories, EAS Build 
 
 For a project that has **android** and **ios** directories, EAS Build will not run Prebuild to avoid overwriting any changes you've made to the native directories.
 
-If you troubleshoot your app by [compiling it locally](/guides/local-app-development/#local-app-compilation) (running `npx expo prebuild`, or `npx expo run:android` or `npx expo run:ios`), you can still use Prebuild with EAS Build to generate fresh native directories during the build process. In this scenario, add the **android** and **ios** directories to **.gitignore** or [**.easignore**](/build-reference/easignore/) files:
+If you troubleshoot your app by [compiling it locally](/guides/local-app-development/#local-app-compilation) (running `npx expo prebuild`, or `npx expo run:android` or `npx expo run:ios`), you can still use Prebuild with EAS Build to generate fresh native directories during the build process. The **android** and **ios** directories are automatically added to **.gitignore** when you create a new project, but if you need to add them manually, you can add them to **.gitignore** or [**.easignore**](/build-reference/easignore/) files:
 
 ```diff .gitignore
 + /android
@@ -128,7 +128,7 @@ Everything offered by Expo including [EAS](/eas/), Expo CLI, and the libraries i
 
 ### CNG
 
-<Collapsible summary="How does CNG helps with project upgrades?">
+<Collapsible summary="How does CNG help with project upgrades?">
 
 React Native developers who don't use **Continuous Native Generation** have reported that upgrading their apps to the latest version of React Native is the number one weakness of the library as per [React Native Survey (2022)](https://results.2022.stateofreactnative.com/opinions/#opinions_pain_points).
 

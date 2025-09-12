@@ -119,7 +119,10 @@ export const home = [
         makePage('config-plugins/introduction.mdx'),
         makePage('config-plugins/plugins.mdx'),
         makePage('config-plugins/mods.mdx'),
+        makePage('config-plugins/dangerous-mods.mdx'),
+        makePage('config-plugins/development-for-libraries.mdx'),
         makePage('config-plugins/development-and-debugging.mdx'),
+        makePage('config-plugins/patch-project.mdx'),
       ],
       { expanded: false }
     ),
@@ -150,7 +153,7 @@ export const home = [
     makePage('deploy/web.mdx'),
   ]),
   makeSection('Monitor', [makePage('monitoring/services.mdx')]),
-  makeSection('More', [makePage('core-concepts.mdx'), makePage('faq.mdx')]),
+  makeSection('More', [makePage('core-concepts.mdx'), makePage('faq.mdx'), makePage('llms.mdx')]),
 ];
 
 export const general = [
@@ -187,6 +190,7 @@ export const general = [
         makePage('guides/local-app-development.mdx'),
         makePage('guides/local-app-production.mdx'),
         makePage('guides/cache-builds-remotely.mdx'),
+        makePage('guides/prebuilt-expo-modules.mdx'),
       ],
       {
         expanded: false,
@@ -200,6 +204,7 @@ export const general = [
         makePage('guides/dom-components.mdx'),
         makePage('guides/progressive-web-apps.mdx'),
         makePage('guides/tailwind.mdx'),
+        makePage('guides/local-https-development.mdx'),
       ],
       { expanded: false }
     ),
@@ -224,7 +229,7 @@ export const general = [
     ]),
     makeSection('Existing native apps', [
       makePage('brownfield/overview.mdx'),
-      makePage('brownfield/installing-expo-modules.mdx'),
+      makePage('brownfield/get-started.mdx'),
     ]),
     makeGroup(
       'Reference',
@@ -254,11 +259,13 @@ export const general = [
     makeGroup('Navigation patterns', [
       makePage('router/advanced/stack.mdx'),
       makePage('router/advanced/tabs.mdx'),
+      makePage('router/advanced/native-tabs.mdx'),
       makePage('router/advanced/drawer.mdx'),
       makePage('router/advanced/authentication.mdx'),
       makePage('router/advanced/authentication-rewrites.mdx'),
       makePage('router/advanced/nesting-navigators.mdx'),
       makePage('router/advanced/modals.mdx'),
+      makePage('router/advanced/web-modals.mdx'),
       makePage('router/advanced/shared-routes.mdx'),
       makePage('router/advanced/protected.mdx'),
     ]),
@@ -272,11 +279,13 @@ export const general = [
     makeGroup('Reference', [
       makePage('router/error-handling.mdx'),
       makePage('router/reference/url-parameters.mdx'),
+      makePage('router/reference/middleware.mdx'),
       makePage('router/reference/redirects.mdx'),
       makePage('router/reference/static-rendering.mdx'),
       makePage('router/reference/async-routes.mdx'),
       makePage('router/reference/api-routes.mdx'),
       makePage('router/reference/sitemap.mdx'),
+      makePage('router/reference/link-preview.mdx'),
       makePage('router/reference/typed-routes.mdx'),
       makePage('router/reference/screen-tracking.mdx'),
       makePage('router/reference/src-directory.mdx'),
@@ -346,6 +355,7 @@ export const general = [
         makePage('guides/store-assets.mdx'),
         makePage('guides/local-first.mdx'),
         makePage('guides/keyboard-handling.mdx'),
+        makePage('guides/expo-ui-swift-ui.mdx'),
       ]),
       makeSection('Integrations', [
         makePage('guides/using-analytics.mdx'),
@@ -363,6 +373,7 @@ export const general = [
         makePage('guides/typescript.mdx'),
         makePage('guides/in-app-purchases.mdx'),
         makePage('guides/using-push-notifications-services.mdx'),
+        makePage('guides/using-feature-flags.mdx'),
       ]),
       makeSection('Troubleshooting', [
         makePage('troubleshooting/overview.mdx'),
@@ -396,12 +407,17 @@ export const eas = [
   ),
   makeSection('EAS Workflows', [
     makePage('eas/workflows/get-started.mdx'),
-    makePage('eas/workflows/examples.mdx'),
     makePage('eas/workflows/pre-packaged-jobs.mdx'),
     makePage('eas/workflows/syntax.mdx'),
     makePage('eas/workflows/automating-eas-cli.mdx'),
     makePage('eas/workflows/limitations.mdx'),
-    makeGroup('Reference', [makePage('eas/workflows/reference/e2e-tests.mdx')]),
+    makeGroup('Examples', [
+      makePage('eas/workflows/examples/introduction.mdx'),
+      makePage('eas/workflows/examples/create-development-builds.mdx'),
+      makePage('eas/workflows/examples/publish-preview-update.mdx'),
+      makePage('eas/workflows/examples/deploy-to-production.mdx'),
+      makePage('eas/workflows/examples/e2e-tests.mdx'),
+    ]),
   ]),
   makeSection('EAS Build', [
     makePage('build/introduction.mdx'),
@@ -462,6 +478,12 @@ export const eas = [
       { expanded: false }
     ),
   ]),
+  makeSection('EAS Submit', [
+    makePage('submit/introduction.mdx'),
+    makePage('submit/android.mdx'),
+    makePage('submit/ios.mdx'),
+    makePage('submit/eas-json.mdx'),
+  ]),
   makeSection('EAS Hosting', [
     makePage('eas/hosting/introduction.mdx'),
     makePage('eas/hosting/get-started.mdx'),
@@ -475,12 +497,6 @@ export const eas = [
       makePage('eas/hosting/reference/responses-and-headers.mdx'),
       makePage('eas/hosting/reference/worker-runtime.mdx'),
     ]),
-  ]),
-  makeSection('EAS Submit', [
-    makePage('submit/introduction.mdx'),
-    makePage('submit/android.mdx'),
-    makePage('submit/ios.mdx'),
-    makePage('submit/eas-json.mdx'),
   ]),
   makeSection('EAS Update', [
     makePage('eas-update/introduction.mdx'),
@@ -512,6 +528,7 @@ export const eas = [
       makePage('eas-update/code-signing.mdx'),
       makePage('eas-update/asset-selection.mdx'),
       makePage('eas-update/standalone-service.mdx'),
+      makePage('eas-update/request-proxying.mdx'),
       makePage('eas-update/codepush.mdx'),
       makePage('eas-update/migrate-from-classic-updates.mdx'),
       makePage('eas-update/trace-update-id-expo-dashboard.mdx'),
@@ -604,8 +621,7 @@ export const learn = [
 const preview = [
   makeSection('Preview', [
     makePage('preview/introduction.mdx'),
-    makePage('preview/singular.mdx'),
-    { expanded: true },
+    makeGroup('Expo Router', [makePage('preview/singular.mdx'), { expanded: true }]),
   ]),
 ];
 

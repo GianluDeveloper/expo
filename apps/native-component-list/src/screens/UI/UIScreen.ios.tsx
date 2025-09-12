@@ -35,11 +35,19 @@ export const UIScreens = [
     },
   },
   {
-    name: 'Section component',
-    route: 'ui/section',
+    name: 'Form component',
+    route: 'ui/form',
     options: {},
     getComponent() {
-      return optionalRequire(() => require('./SectionScreen'));
+      return optionalRequire(() => require('./FormScreen'));
+    },
+  },
+  {
+    name: 'ShareLink component',
+    route: 'ui/share-link',
+    options: {},
+    getComponent() {
+      return optionalRequire(() => require('./ShareLinkScreen'));
     },
   },
   {
@@ -107,11 +115,51 @@ export const UIScreens = [
     },
   },
   {
-    name: 'SwiftUI primitives',
-    route: 'ui/swiftui-primitives',
+    name: 'Chart component',
+    route: 'ui/chart',
     options: {},
     getComponent() {
-      return optionalRequire(() => require('./SwiftUIPrimitivesScreen'));
+      return optionalRequire(() => require('./ChartScreen'));
+    },
+  },
+  {
+    name: 'Hosting RN Views',
+    route: 'ui/hosting-rn-views',
+    options: {},
+    getComponent() {
+      return optionalRequire(() => require('./HostingRNViewsScreen'));
+    },
+  },
+  {
+    name: 'Modifiers',
+    route: 'ui/modifiers',
+    options: {},
+    getComponent() {
+      return optionalRequire(() => require('./ModifiersScreen'));
+    },
+  },
+  {
+    name: 'Animation Modifier',
+    route: 'ui/animation-modifier',
+    options: {},
+    getComponent() {
+      return optionalRequire(() => require('./AnimationModifierScreen'));
+    },
+  },
+  {
+    name: 'Glass Effect',
+    route: 'ui/glass-effect',
+    options: {},
+    getComponent() {
+      return optionalRequire(() => require('./GlassEffectScreen'));
+    },
+  },
+  {
+    name: 'Matched Geometry Effect',
+    route: 'ui/matched-geometry-effect',
+    options: {},
+    getComponent() {
+      return optionalRequire(() => require('./MatchedGeometryEffectScreen'));
     },
   },
 ];
@@ -124,7 +172,7 @@ export default function UIScreen() {
       route: `/components/${screen.route}`,
     };
   });
-  return <ComponentListScreen apis={apis} sort={false} />;
+  return <ComponentListScreen apis={apis} sort />;
 }
 
 UIScreen.navigationOptions = {

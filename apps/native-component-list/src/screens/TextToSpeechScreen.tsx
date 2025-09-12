@@ -1,4 +1,4 @@
-import { Picker as ExPicker } from '@expo/ui/swift-ui';
+import { Picker as ExPicker, Host } from '@expo/ui/swift-ui';
 import { Picker } from '@react-native-picker/picker';
 import * as Speech from 'expo-speech';
 import * as React from 'react';
@@ -105,41 +105,13 @@ export default class TextToSpeechScreen extends React.Component<object, State> {
         )}
 
         {this.state.voiceList && (
-          <View>
-            {Platform.select({
-              ios: (
-                <ExPicker
-                  options={this.state.voiceList.map((it) => it.name)}
-                  selectedIndex={this.state.voiceList.findIndex(
-                    (it) => it.identifier === this.state.voice
-                  )}
-                  onOptionSelected={({ nativeEvent: { index } }) => {
-                    const voice = this.state.voiceList?.[index].identifier;
-                    if (voice) {
-                      this.setState({ voice });
-                    }
-                  }}
-                  variant="wheel"
-                  style={{
-                    height: 200,
-                  }}
-                />
-              ),
-              default: (
-                <Picker
-                  selectedValue={this.state.voice}
-                  onValueChange={(voice) => this.setState({ voice })}>
-                  {this.state.voiceList.map((voice) => (
-                    <Picker.Item
-                      key={voice.identifier}
-                      label={voice.name}
-                      value={voice.identifier}
-                    />
-                  ))}
-                </Picker>
-              ),
-            })}
-          </View>
+          <Picker
+            selectedValue={this.state.voice}
+            onValueChange={(voice) => this.setState({ voice })}>
+            {this.state.voiceList.map((voice) => (
+              <Picker.Item key={voice.identifier} label={voice.name} value={voice.identifier} />
+            ))}
+          </Picker>
         )}
 
         <Text style={styles.controlText}>Pitch: {this.state.pitch.toFixed(2)}</Text>
@@ -176,19 +148,21 @@ export default class TextToSpeechScreen extends React.Component<object, State> {
           <>
             <Text>useApplicationAudioSession</Text>
             <View style={styles.controlRow}>
-              <ExPicker
-                variant="segmented"
-                options={audioSessionOptions.map((option) => option.label)}
-                selectedIndex={audioSessionOptions.findIndex(
-                  (option) => option.value === this.state.useApplicationAudioSession
-                )}
-                onOptionSelected={({ nativeEvent: { index } }) => {
-                  const useApplicationAudioSession = audioSessionOptions[index].value;
-                  this.setState({
-                    useApplicationAudioSession,
-                  });
-                }}
-              />
+              <Host>
+                <ExPicker
+                  variant="segmented"
+                  options={audioSessionOptions.map((option) => option.label)}
+                  selectedIndex={audioSessionOptions.findIndex(
+                    (option) => option.value === this.state.useApplicationAudioSession
+                  )}
+                  onOptionSelected={({ nativeEvent: { index } }) => {
+                    const useApplicationAudioSession = audioSessionOptions[index].value;
+                    this.setState({
+                      useApplicationAudioSession,
+                    });
+                  }}
+                />
+              </Host>
             </View>
           </>
         )}

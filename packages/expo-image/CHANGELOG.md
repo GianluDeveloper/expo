@@ -8,11 +8,81 @@
 
 ### 🐛 Bug fixes
 
-- [Android] Fix animation resuming by casting image to GifDrawable. ([#37363](https://github.com/expo/expo/pull/37363) by [@Wenszel](https://github.com/Wenszel))
-- [iOS] Fixed contentPosition is not correct after switching theme. ([#37374](https://github.com/expo/expo/pull/37374) by [@kudo](https://github.com/kudo))
-- [Android] Make Glide compiler (`kapt "com.github.bumptech.glide:compiler"`) in the `expo-image` module conditional on the `excludeAppGlideModule` Gradle property. When `excludeAppGlideModule=true`, expo-image now omits its own annotation processing and stub `ExpoImageAppGlideModule.kt`, preventing duplicate `GeneratedAppGlideModuleImpl` conflicts in release builds. ([#37432](https://github.com/expo/expo/pull/37432) by [@antonhudz](https://github.com/antonhudz))
-
 ### 💡 Others
+
+## 3.0.8 — 2025-09-11
+
+_This version does not introduce any user-facing changes._
+
+## 3.0.7 — 2025-09-03
+
+### 🐛 Bug fixes
+
+- [iOS] Fix images not displaying in Material Top Tabs navigator. ([#39323](https://github.com/expo/expo/pull/39323) by [@lukmccall](https://github.com/lukmccall))
+
+## 3.0.6 — 2025-09-02
+
+_This version does not introduce any user-facing changes._
+
+## 3.0.5 — 2025-08-31
+
+_This version does not introduce any user-facing changes._
+
+## 3.0.4 — 2025-08-26
+
+### 🐛 Bug fixes
+
+- [Android] Fixed `The method 'getResourceDrawableUri' was expected to be of type static` exception. ([#39143](https://github.com/expo/expo/pull/39143) by [@lukmccall](https://github.com/lukmccall))
+
+## 3.0.3 — 2025-08-25
+
+_This version does not introduce any user-facing changes._
+
+## 3.0.2 — 2025-08-16
+
+_This version does not introduce any user-facing changes._
+
+## 3.0.1 — 2025-08-15
+
+_This version does not introduce any user-facing changes._
+
+## 3.0.0 — 2025-08-13
+
+### 🎉 New features
+
+- Add `generateThumbhashAsync` ([#38090](https://github.com/expo/expo/pull/38090) by [@Wenszel](https://github.com/Wenszel))
+- Add support for `ImageRef` source in `generateBlurhashAsync` ([#37901](https://github.com/expo/expo/pull/37901) by [@Wenszel](https://github.com/Wenszel))
+- [Android] Add generateBlurhashAsync ([#37817](https://github.com/expo/expo/pull/37817) by [@Wenszel](https://github.com/Wenszel))
+
+### 🐛 Bug fixes
+
+- [Android] Fix animation resuming by casting image to GifDrawable. ([#37363](https://github.com/expo/expo/pull/37363) by [@Wenszel](https://github.com/Wenszel))
+- [Web] Fix `alt` as an alias for `accessibilityLabel` ([#37682](https://github.com/expo/expo/pull/37682) by [@huextrat](https://github.com/huextrat))
+- [iOS] Fix caching resized images from Photo Library. ([#38105](https://github.com/expo/expo/pull/38105) by [@jakex7](https://github.com/jakex7))
+- [iOS] Fix `generatePlaceholder` method syntax error by removing unwanted trailing comma. ([#38318](https://github.com/expo/expo/pull/38318) by [@bortolilucas](https://github.com/bortolilucas))
+
+## 2.4.0 - 2025-07-17
+
+### 🎉 New features
+
+- [iOS] Add a new prop - `enforceEarlyResizing` to reduce the memory usage of the image view. ([#37909](https://github.com/expo/expo/pull/37909) by [@lukmccall](https://github.com/lukmccall))
+
+### 🐛 Bug fixes
+
+- [iOS] Speed up displaying local assets. ([#37795](https://github.com/expo/expo/pull/37795) by [@aleqsio](https://github.com/aleqsio))
+- [iOS] Fix some operation were incorrectly cancelled. ([#37987](https://github.com/expo/expo/pull/37987) by [@lukmccall](https://github.com/lukmccall))
+
+## 2.3.2 - 2025-07-01
+
+### 🐛 Bug fixes
+
+- [iOS] Use specified cache type when no transformation is applied ([#37777](https://github.com/expo/expo/pull/37777) by [@jakex7](https://github.com/jakex7))
+
+## 2.3.1 - 2025-07-01
+
+### 🐛 Bug fixes
+
+- [iOS] Fixed contentPosition is not correct after switching theme. ([#37374](https://github.com/expo/expo/pull/37374) by [@kudo](https://github.com/kudo))
 
 ### 📚 3rd party library updates
 
@@ -43,6 +113,7 @@ _This version does not introduce any user-facing changes._
 - Fix React Server Components support. ([#36801](https://github.com/expo/expo/pull/36801) by [@EvanBacon](https://github.com/EvanBacon))
 - [iOS] Fix PhotoLibrary assets being scaled twice. ([#36776](https://github.com/expo/expo/pull/36776) by [@alanjhughes](https://github.com/alanjhughes))
 - [iOS] Don't add transformers when unnecessary. ([#36884](https://github.com/expo/expo/pull/36884) by [@jakex7](https://github.com/jakex7))
+- [Web] Fix `tintColor` in React 19. ([#37133](https://github.com/expo/expo/pull/37133) by [@bradleyayers](https://github.com/bradleyayers))
 
 ## 2.1.7 — 2025-05-06
 

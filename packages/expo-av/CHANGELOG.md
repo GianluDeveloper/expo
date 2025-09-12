@@ -8,9 +8,47 @@
 
 ### 🐛 Bug fixes
 
-- Added Android 16KB page size support. ([#37446](https://github.com/expo/expo/pull/37446) by [@kudo](https://github.com/kudo))
+### 💡 Others
+
+## 16.0.7 — 2025-09-11
+
+_This version does not introduce any user-facing changes._
+
+## 16.0.6 — 2025-09-02
 
 ### 💡 Others
+
+- Change Constants to Constant/Property. ([#38926](https://github.com/expo/expo/pull/38926) by [@jakex7](https://github.com/jakex7))
+
+## 16.0.5 — 2025-08-31
+
+_This version does not introduce any user-facing changes._
+
+## 16.0.4 — 2025-08-27
+
+_This version does not introduce any user-facing changes._
+
+## 16.0.3 — 2025-08-25
+
+_This version does not introduce any user-facing changes._
+
+## 16.0.2 — 2025-08-16
+
+_This version does not introduce any user-facing changes._
+
+## 16.0.1 — 2025-08-15
+
+_This version does not introduce any user-facing changes._
+
+## 16.0.0 — 2025-08-13
+
+_This version does not introduce any user-facing changes._
+
+## 15.1.7 - 2025-07-01
+
+### 🐛 Bug fixes
+
+- Added Android 16KB page size support. ([#37446](https://github.com/expo/expo/pull/37446) by [@kudo](https://github.com/kudo))
 
 ## 15.1.6 - 2025-06-10
 
@@ -69,6 +107,7 @@ _This version does not introduce any user-facing changes._
 
 ### 🐛 Bug fixes
 
+- [expo-av] Fixed black screen bug that appears when playing videos with AV1 codec ([#35053](https://github.com/expo/expo/pull/35053) by [@HezekielT](https://github.com/HezekielT))
 - [iOS] `loadAsync()` promise never settled when given an invalid file uri ([#30020](https://github.com/expo/expo/pull/30020) by [@vonovak](https://github.com/vonovak))
 - Fixed putting app to background stops non-mixable audio playback in other apps on iOS ([#20380](https://github.com/expo/expo/pull/20380) by [@de1acr0ix](https://github.com/de1acr0ix))
 - Fix unhandled promise rejection when start recording fails [#29826](https://github.com/expo/expo/pull/29826) by [@anirudhsama](https://github.com/anirudhsama)

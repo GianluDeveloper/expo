@@ -2,6 +2,7 @@
 title: Using in-app purchases
 description: Learn about how to use in-app purchases in your Expo app.
 hideTOC: true
+hasVideoLink: true
 ---
 
 import { GithubIcon } from '@expo/styleguide-icons/custom/GithubIcon';
@@ -9,12 +10,17 @@ import { BookOpen02Icon } from '@expo/styleguide-icons/outline/BookOpen02Icon';
 
 import { BoxLink } from '~/ui/components/BoxLink';
 import { CODE } from '~/ui/components/Text';
+import { VideoBoxLink } from '~/ui/components/VideoBoxLink';
 
 In-app purchases (IAP) are transactions within a mobile or desktop application where users can buy digital goods or additional features. This guide provides a list of popular libraries and tutorials for implementing IAP in your Expo app.
 
 > In-app purchase libraries require configuring custom native code. Native code is not configurable when using Expo Go. Instead, create a [development build](/develop/development-builds/introduction/), which allows using a native library in your project.
 
 ## Tutorial
+
+<VideoBoxLink videoId="R3fLKC-2Qh0" title="Watch: How to Implement In-App Purchases in Expo" />
+
+<br />
 
 <BoxLink
   title="Expo In-App Purchase Tutorial"
@@ -40,22 +46,6 @@ The following libraries provide robust support for in-app purchase functionality
   }
   description="An open-source framework that provides a wrapper around Google Play Billing and StoreKit APIs, and integration with RevenueCat services supporting in-app purchases. It enables product management, analytics, and simplified workflows for in-app purchase requirements that may extend beyond your client code, such as validating purchases on an app's backend."
   href="https://github.com/RevenueCat/react-native-purchases"
-  Icon={GithubIcon}
-/>
-
-<BoxLink
-  title={
-    <>
-      <CODE>react-native-iap</CODE> (deprecated)
-    </>
-  }
-  description={
-    <>
-      A legacy React Native library for in-app purchases. Superseded by <CODE>expo-iap</CODE> for
-      Expo apps.
-    </>
-  }
-  href="https://github.com/hyochan/react-native-iap"
   Icon={GithubIcon}
 />
 

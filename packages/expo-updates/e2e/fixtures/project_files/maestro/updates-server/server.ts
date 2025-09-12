@@ -17,6 +17,7 @@ import type { Request, Response } from 'express';
 const supportedPlatforms = new Set(['android', 'ios']);
 const supportedConfigurations = new Set(['debug', 'release']);
 const supportedManifestRequests = new Set([
+  'no-update-available',
   'test-update-basic',
   'test-update-invalid-hash',
   'test-update-with-invalid-asset-hash',
@@ -24,7 +25,9 @@ const supportedManifestRequests = new Set([
   'test-update-with-older-commit-time',
   'test-update-before-rollback',
   'test-rollback',
+  'test-update-for-fingerprint',
   'test-update-for-asset-deletion',
+  'test-update-crashing',
 ]);
 
 const app = express();
@@ -38,6 +41,7 @@ let updateRequest: Request | null = null;
 
 let manifestToServe: null = null;
 let manifestHeadersToServe: { [x: string]: any } | null = null;
+let serveChannel: string | null = null;
 
 let logEntries: UpdatesLogEntry[] = [];
 
@@ -80,14 +84,10 @@ function stop() {
   updateRequest = null;
   manifestToServe = null;
   manifestHeadersToServe = null;
+  serveChannel = null;
   multipartResponseToServe = null;
   requestedStaticFiles = [];
   logEntries = [];
-}
-
-function restart() {
-  stop();
-  start(protocolVersion, artificialDelay, serveOverriddenUrl);
 }
 
 function getRequestedStaticFilesLength() {
@@ -167,7 +167,7 @@ app.get('/update-override', (req: any, res: any) => {
 const updateRequestHandler = (req: any, res: any) => {
   console.log('Received update request: ', JSON.stringify(req.headers, null, 2));
   updateRequest = req;
-  if (multipartResponseToServe) {
+  if (multipartResponseToServe && isChannelMatched(req)) {
     console.log('Serving multipart response');
     // Protocol 1: multipart and rollbacks supported
     const form = new FormData();
@@ -209,22 +209,28 @@ const updateRequestHandler = (req: any, res: any) => {
     } else {
       sendResponse();
     }
-  } else {
+  } else if (manifestToServe && isChannelMatched(req)) {
     // Protocol 0
-    if (manifestToServe) {
-      console.log('Serving manifest with protocol 0');
-      if (manifestHeadersToServe) {
-        Object.keys(manifestHeadersToServe).forEach((headerName) => {
-          res.set(headerName, manifestHeadersToServe ? manifestHeadersToServe[headerName] : '');
-        });
-      }
-      res.json(manifestToServe);
-    } else {
-      console.log('No manifest to serve');
-      res.status(404).send('No update available');
+    console.log('Serving manifest with protocol 0');
+    if (manifestHeadersToServe) {
+      Object.keys(manifestHeadersToServe).forEach((headerName) => {
+        res.set(headerName, manifestHeadersToServe ? manifestHeadersToServe[headerName] : '');
+      });
     }
+    res.json(manifestToServe);
+  } else {
+    console.log('No manifest to serve');
+    res.status(404).send('No update available');
   }
 };
+
+function isChannelMatched(req: any): boolean {
+  if (!serveChannel) {
+    return true;
+  }
+  const channel = req.headers['expo-channel-name'];
+  return channel === serveChannel;
+}
 
 async function waitForUpdateRequest(timeout: number): Promise<{ headers: any }> {
   const finishTime = new Date().getTime() + timeout;
@@ -378,17 +384,26 @@ async function installClient(platform: string, configuration: string) {
   });
 }
 
-app.get('/restart-server', (_: Request, res: Response) => {
+app.get('/restart-server', (req: Request, res: Response) => {
   console.log('Received request to restart server');
+  let newArtificialDelay = 0;
+  let newServeOverriddenUrl = false;
+  if (req.query.ms) {
+    newArtificialDelay = parseInt(req.query.ms as string, 10);
+    console.log(`Setting artificial delay to ${artificialDelay} ms`);
+  }
+  if (req.query.serveOverriddenUrl) {
+    newServeOverriddenUrl = true;
+  }
   res.status(200).send('OK');
-  restartServer();
+  restartServer(newArtificialDelay, newServeOverriddenUrl);
 });
 
-async function restartServer() {
+async function restartServer(newArtificialDelay: number, newServeOverriddenUrl: boolean) {
   console.log('Restarting server');
   await setTimeout(100);
   Server.stop();
-  Server.start(protocolVersion, artificialDelay, serveOverriddenUrl);
+  Server.start(protocolVersion, newArtificialDelay, newServeOverriddenUrl);
   console.log('Server restarted');
 }
 
@@ -447,20 +462,30 @@ app.get('/last-request-headers', (_: Request, res: Response) => {
 });
 
 app.get('/serve-manifest', async (req: Request, res: Response) => {
-  console.log(
-    'Received request to serve manifest named: ',
-    req.query.name,
-    ' on platform: ',
-    req.query.platform
-  );
+  if (req.query.channel) {
+    console.log(
+      `Received request to serve manifest named: ${req.query.name} on platform: ${req.query.platform} with channel: ${req.query.channel}`
+    );
+  } else {
+    console.log(
+      `Received request to serve manifest named: ${req.query.name} on platform: ${req.query.platform}`
+    );
+  }
   try {
     if (!supportedManifestRequests.has(req.query.name as string)) {
-      res.status(400).send(`Missing or unknown manifest name: ${req.query.name}`);
+      const errorMessage = `Missing or unknown manifest name: ${req.query.name}`;
+      console.log(errorMessage);
+      res.status(400).send(errorMessage);
       return;
     }
     if (!supportedPlatforms.has(req.query.platform as string)) {
-      res.status(400).send(`Missing or unknown platform: ${req.query.platform}`);
+      const errorMessage = `Missing or unknown platform: ${req.query.platform}`;
+      console.log(errorMessage);
+      res.status(400).send(errorMessage);
       return;
+    }
+    if (req.query.channel) {
+      serveChannel = String(req.query.channel);
     }
     const manifestId = await respondToServeManifestRequest(
       req.query.name as string,
@@ -481,6 +506,8 @@ async function respondToServeManifestRequest(
   platform: string = 'android'
 ): Promise<string> {
   switch (name) {
+    case 'no-update-available':
+      return await serveNoUpdateAvailable();
     case 'test-update-basic':
       return await serveTestUpdate1(platform);
     case 'test-update-invalid-hash':
@@ -497,9 +524,64 @@ async function respondToServeManifestRequest(
       return await serveRollback();
     case 'test-update-for-asset-deletion':
       return await serveTestUpdateForAssetDeletion(platform);
+    case 'test-update-for-fingerprint':
+      return await serveTestUpdateWithFingerprint(platform);
+    case 'test-update-crashing':
+      return await serveTestUpdateCrashing(platform);
     default:
       throw new Error('Unknown manifest name: ' + name);
   }
+}
+
+async function serveNoUpdateAvailable(): Promise<string> {
+  await serveSignedDirective(Update.getNoUpdateAvailableDirective(), projectRoot);
+  return '';
+}
+
+async function serveTestUpdateCrashing(platform: string): Promise<string> {
+  const bundleFilename = 'bundle1.js';
+  const newNotifyString = 'test-update-crashing';
+  const hash = await Update.copyBundleToStaticFolder(
+    projectRoot,
+    bundleFilename,
+    newNotifyString,
+    platform
+  );
+  const manifest = Update.getUpdateManifestForBundleFilename(
+    new Date(),
+    hash,
+    'test-update-crashing-key',
+    bundleFilename,
+    [],
+    projectRoot
+  );
+
+  await serveSignedManifest(manifest, projectRoot);
+  return manifest.id;
+}
+
+async function serveTestUpdateWithFingerprint(platform: string): Promise<string> {
+  const bundleFilename = 'bundle1.js';
+  const newNotifyString = 'test-update-1';
+  const hash = await Update.copyBundleToStaticFolder(
+    projectRoot,
+    bundleFilename,
+    newNotifyString,
+    platform
+  );
+  const manifest =
+    await Update.getUpdateManifestForBundleFilenameWithFingerprintRuntimeVersionAsync(
+      new Date(),
+      hash,
+      'test-update-1-key',
+      bundleFilename,
+      [],
+      projectRoot,
+      platform
+    );
+  console.log(`Serving fingerprint manifest: ${JSON.stringify(manifest, null, 2)}`);
+  await serveSignedManifest(manifest, projectRoot);
+  return manifest.id;
 }
 
 async function serveTestUpdate1(platform: string): Promise<string> {
@@ -735,7 +817,6 @@ async function serveTestUpdateForAssetDeletion(platform: string): Promise<string
 const Server = {
   start,
   stop,
-  restart,
   isStarted,
   waitForUpdateRequest,
   serveManifest,

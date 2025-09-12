@@ -11,13 +11,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import expo.modules.devmenu.compose.theme.Theme
+import androidx.compose.ui.unit.Dp
+import expo.modules.devmenu.compose.newtheme.NewAppTheme
 
 @Composable
 fun Surface(
   modifier: Modifier = Modifier,
   shape: Shape = RectangleShape,
-  color: Color = Theme.colors.background.default,
+  color: Color = NewAppTheme.colors.background.default,
   border: BorderStroke? = null,
   content: @Composable () -> Unit
 ) {
@@ -41,14 +42,14 @@ fun Surface(
 @Composable
 fun RoundedSurface(
   modifier: Modifier = Modifier,
-  shape: Shape = RoundedCornerShape(Theme.sizing.borderRadius.large),
-  color: Color = Theme.colors.background.default,
+  borderRadius: Dp = NewAppTheme.borderRadius.xl,
+  color: Color = NewAppTheme.colors.background.default,
   border: BorderStroke? = null,
   content: @Composable () -> Unit
 ) {
   Surface(
     modifier = modifier,
-    shape = shape,
+    shape = RoundedCornerShape(borderRadius),
     color = color,
     border = border,
     content = content

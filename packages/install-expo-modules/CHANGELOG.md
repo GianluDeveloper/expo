@@ -8,6 +8,58 @@
 
 ### 🐛 Bug fixes
 
+- Added support for react-native 0.81 and Expo SDK 54 ([#39575](https://github.com/expo/expo/pull/39575) by [@vonovak](https://github.com/vonovak))
+
+### 💡 Others
+
+## 0.13.9 — 2025-09-11
+
+_This version does not introduce any user-facing changes._
+
+## 0.13.8 — 2025-09-10
+
+### 💡 Others
+
+- Remove dependency on `find-up` ([#39470](https://github.com/expo/expo/pull/39470) by [@kitten](https://github.com/kitten))
+
+## 0.13.7 — 2025-09-02
+
+_This version does not introduce any user-facing changes._
+
+## 0.13.6 — 2025-08-31
+
+_This version does not introduce any user-facing changes._
+
+## 0.13.5 — 2025-08-27
+
+_This version does not introduce any user-facing changes._
+
+## 0.13.4 — 2025-08-25
+
+_This version does not introduce any user-facing changes._
+
+## 0.13.3 — 2025-08-21
+
+_This version does not introduce any user-facing changes._
+
+## 0.13.2 — 2025-08-16
+
+_This version does not introduce any user-facing changes._
+
+## 0.13.1 — 2025-08-15
+
+_This version does not introduce any user-facing changes._
+
+## 0.13.0 — 2025-08-13
+
+_This version does not introduce any user-facing changes._
+
+## 0.12.8 - 2025-07-03
+
+_This version does not introduce any user-facing changes._
+
+## 0.12.7 - 2025-07-01
+
 ### 💡 Others
 
 - Remove "Please" from warnings and errors ([#36862](https://github.com/expo/expo/pull/36862) by [@brentvatne](https://github.com/brentvatne))

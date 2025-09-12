@@ -45,7 +45,7 @@ struct Event: Record {
   @Field
   var title: String
   @Field
-  var location: String
+  var location: String?
   @Field
   var creationDate: Either<String, Double>?
   @Field
@@ -108,6 +108,8 @@ struct Reminder: Record {
   var alarms: [Alarm]?
   @Field
   var recurrenceRule: RecurrenceRule?
+  @Field
+  var allDay: Bool?
   @Field
   var startDate: Either<String, Double>?
   @Field

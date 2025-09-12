@@ -10,7 +10,67 @@
 
 ### 💡 Others
 
+## 1.0.8 — 2025-09-11
+
+_This version does not introduce any user-facing changes._
+
+## 1.0.7 — 2025-09-02
+
+_This version does not introduce any user-facing changes._
+
+## 1.0.6 — 2025-08-31
+
+_This version does not introduce any user-facing changes._
+
+## 1.0.5 — 2025-08-27
+
+_This version does not introduce any user-facing changes._
+
+## 1.0.4 — 2025-08-25
+
+_This version does not introduce any user-facing changes._
+
+## 1.0.3 — 2025-08-18
+
+### 💡 Others
+
+- [ios] Removed `buildFromSource` option on iOS.
+
+## 1.0.2 — 2025-08-16
+
+_This version does not introduce any user-facing changes._
+
+## 1.0.1 — 2025-08-15
+
+### 🎉 New features
+
+- Add `ios.reactNativeReleaseLevel` option ([#38840](https://github.com/expo/expo/pull/38840) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+
+## 1.0.0 — 2025-08-13
+
+### 🎉 New features
+
+- [ios] Added default support for prebuilt React Native Core. Can be disabled via `ios.buildReactNativeFromSource` in eas.json. (Renamed Android prop as well to align) ([#38400](https://github.com/expo/expo/pull/38400) by [@chrfalch](https://github.com/chrfalch))
+- Added support for prebuilt React Native iOS dependencies via `ios.buildFromSource: false` in the iOS build properties. When `buildFromSource` is disabled, it sets `ENV['RCT_USE_RN_DEP'] = '1'` in the Podfile to use prebuilt third-party dependencies, as described in the [React Native 0.80 release blog post](https://reactnative.dev/blog/2025/06/12/react-native-0.80#experimental---react-native-ios-dependencies-are-now-prebuilt). ([#37678](https://github.com/expo/expo/pull/37678) by [@huextrat](https://github.com/huextrat))
+- Add `android.buildArchs` option to override the default `reactNativeArchitectures` value in gradle.properties ([#37831](https://github.com/expo/expo/pull/37831) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+- Add support for setting Android's exclusiveMavenMirror gradle property ([#37864](https://github.com/expo/expo/pull/37864) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+- Add android.reactNativeReleaseLevel option ([#38698](https://github.com/expo/expo/pull/38698) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+
+### 💡 Others
+
+- [android] Deprecate `enableProguardInReleaseBuilds` in favor of `enableMinifyInReleaseBuilds` ([#38627](https://github.com/expo/expo/pull/38627) by [@nishan](https://github.com/intergalacticspacehighway))
+
+## 0.14.8 - 2025-07-01
+
+### 💡 Others
+
 - Added `System.getenv()` syntax support to the tsdoc for `AndroidMavenRepositoryCredentials`. ([#37344](https://github.com/expo/expo/pull/37344) by [@kudo](https://github.com/kudo))
+
+## 0.14.7 - 2025-06-30
+
+### 🎉 New features
+
+- Add `android.buildFromSource` option ([#37745](https://github.com/expo/expo/pull/37745) by [@gabrieldonadel](https://github.com/gabrieldonadel))
 
 ## 0.14.6 — 2025-04-30
 

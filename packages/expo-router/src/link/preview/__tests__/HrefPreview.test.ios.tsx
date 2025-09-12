@@ -1,4 +1,5 @@
 import type { NavigationProp } from '@react-navigation/native';
+import { screen } from '@testing-library/react-native';
 import React, { useEffect, type PropsWithChildren } from 'react';
 import { View, Text } from 'react-native';
 
@@ -10,9 +11,9 @@ import {
   useSegments,
 } from '../../../hooks';
 import { Stack } from '../../../layouts/Stack';
-import { renderRouter, screen } from '../../../testing-library';
+import { renderRouter } from '../../../testing-library';
 import { useNavigation } from '../../../useNavigation';
-import { Redirect } from '../../Link';
+import { Redirect } from '../../Redirect';
 import { HrefPreview } from '../HrefPreview';
 
 it.each([
@@ -255,10 +256,6 @@ describe('useRouter in preview', () => {
 
     expect(screen.getByTestId('index')).toBeVisible();
     expect(screen.queryByTestId('foo')).toBeFalsy();
-    expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
-    expect(consoleWarnSpy).toHaveBeenLastCalledWith(
-      "router.replace should not be used in a previewed screen. To fix this issue, wrap navigation calls with 'if (!isPreview) { ... }'."
-    );
   });
 
   it('router.push should not push in preview', async () => {
@@ -300,4 +297,41 @@ it('Renders not found for not existing href', async () => {
   });
 
   expect(screen.getByTestId('not-found')).toBeVisible();
+});
+
+describe('Setting Stack.Screen options in preview', () => {
+  let consoleWarnSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleWarnSpy.mockRestore();
+  });
+
+  it('can use Stack.Screen inside screen presented in HrefPreview', () => {
+    const headerTitle = jest.fn(() => null);
+    renderRouter({
+      _layout: () => <Stack screenOptions={{ headerTitle }} />,
+      index: () => (
+        <View testID="index">
+          <HrefPreview href="/preview" />
+        </View>
+      ),
+      preview: () => (
+        <View testID="preview">
+          <Stack.Screen options={{ title: 'preview', headerShown: true }} />
+        </View>
+      ),
+    });
+
+    expect(screen.getByTestId('index')).toBeVisible();
+    expect(screen.getByTestId('preview')).toBeVisible();
+    expect(headerTitle.mock.calls).toStrictEqual([
+      [{ tintColor: 'rgb(0, 122, 255)', children: 'index' }],
+      [{ tintColor: 'rgb(0, 122, 255)', children: 'index' }],
+    ]);
+    expect(consoleWarnSpy).toHaveBeenCalled();
+  });
 });
