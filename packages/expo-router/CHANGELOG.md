@@ -8,7 +8,18 @@
 
 ### 🐛 Bug fixes
 
+- fix VectorIcon types ([#39747](https://github.com/expo/expo/pull/39747) by [@Ubax](https://github.com/Ubax))
+- [iOS] fix icons in context menu not being removed with `undefined` ([#39845](https://github.com/expo/expo/pull/39845) by [@hassankhan](https://github.com/hassankhan))
+- [iOS] fix optional context menu props not being unset with `undefined` ([#39853](https://github.com/expo/expo/pull/39853) by [@hassankhan](https://github.com/hassankhan))
+
+
 ### 💡 Others
+
+## 6.0.6 — 2025-09-16
+
+### 🐛 Bug fixes
+
+- [android] fix Invalid prop style supplied to React.Fragment ([#39685](https://github.com/expo/expo/pull/39685) by [@Ubax](https://github.com/Ubax))
 
 ## 6.0.5 — 2025-09-16
 
