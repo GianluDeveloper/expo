@@ -7,9 +7,11 @@ import { H2, DEMI, CODE, CALLOUT, A } from '~/ui/components/Text';
 import {
   CommentData,
   GeneratedData,
-  MethodSignatureData,
   PropsDefinitionData,
+  TypeDefinitionData,
+  TypeSignaturesData,
 } from './APIDataTypes';
+import { buildCompoundNameByComponent } from './APISectionCompoundNames';
 import { APISectionDeprecationNote } from './APISectionDeprecationNote';
 import APISectionProps from './APISectionProps';
 import {
@@ -27,12 +29,37 @@ export type APISectionComponentsProps = {
   componentsProps: PropsDefinitionData[];
 };
 
-const getComponentComment = (comment: CommentData, signatures: MethodSignatureData[]) =>
-  comment || (signatures?.[0]?.comment ?? undefined);
+const getComponentComment = (comment?: CommentData, signatures: TypeSignaturesData[] = []) =>
+  comment ?? signatures?.[0]?.comment ?? undefined;
 
-const getComponentType = ({ signatures }: Partial<GeneratedData>) => {
-  if (signatures?.length && signatures[0].type.types) {
-    return 'React.' + signatures[0].type.types.filter(t => t.type === 'reference')[0]?.name;
+const getComponentSignatures = ({
+  signatures,
+  type,
+}: {
+  signatures?: TypeSignaturesData[];
+  type?: TypeDefinitionData;
+}): TypeSignaturesData[] => {
+  if (signatures?.length) {
+    return signatures;
+  }
+  if (type?.declaration?.signatures?.length) {
+    return type.declaration.signatures;
+  }
+  if (type?.type === 'intersection' || type?.type === 'union') {
+    return (
+      type.types?.find(
+        candidate => candidate.type === 'reflection' && candidate.declaration?.signatures?.length
+      )?.declaration?.signatures ?? []
+    );
+  }
+  return [];
+};
+
+const getComponentType = ({ signatures }: { signatures?: TypeSignaturesData[] }) => {
+  const signatureType = signatures?.[0]?.type;
+  const referenceName = signatureType?.types?.find(t => t.type === 'reference')?.name;
+  if (referenceName) {
+    return `React.${referenceName}`;
   }
   return (
     <>
@@ -46,11 +73,15 @@ const getComponentTypeParameters = ({
   extendedTypes,
   type,
   signatures,
-}: Partial<GeneratedData>) => {
+}: {
+  extendedTypes?: TypeDefinitionData[];
+  type?: TypeDefinitionData;
+  signatures?: TypeSignaturesData[];
+}) => {
   if (extendedTypes?.length) {
     return extendedTypes[0];
   } else if (signatures?.length && signatures[0]?.parameters?.length) {
-    return signatures?.[0].parameters[0].type;
+    return signatures?.[0].parameters?.[0]?.type;
   }
   return type;
 };
@@ -58,12 +89,19 @@ const getComponentTypeParameters = ({
 const renderComponent = (
   { name, comment, type, extendedTypes, children, signatures }: GeneratedData,
   sdkVersion: string,
-  componentsProps?: PropsDefinitionData[]
+  componentsProps?: PropsDefinitionData[],
+  compoundNameByComponent?: Map<string, string>
 ) => {
-  const resolvedType = getComponentType({ signatures });
-  const resolvedTypeParameters = getComponentTypeParameters({ type, extendedTypes, signatures });
-  const resolvedName = getComponentName(name, children);
-  const extractedComment = getComponentComment(comment, signatures);
+  const resolvedSignatures = getComponentSignatures({ signatures, type });
+  const resolvedType = getComponentType({ signatures: resolvedSignatures });
+  const resolvedTypeParameters = getComponentTypeParameters({
+    type,
+    extendedTypes,
+    signatures: resolvedSignatures,
+  });
+  const baseName = getComponentName(name, children);
+  const resolvedName = compoundNameByComponent?.get(baseName) ?? baseName;
+  const extractedComment = getComponentComment(comment, resolvedSignatures);
 
   return (
     <div
@@ -93,7 +131,7 @@ const renderComponent = (
         <APISectionProps
           sdkVersion={sdkVersion}
           data={componentsProps}
-          header={`${resolvedName}Props`}
+          header={`${baseName}Props`}
           parentPlatforms={getAllTagData('platform', extractedComment)}
         />
       ) : null}
@@ -101,8 +139,12 @@ const renderComponent = (
   );
 };
 
-const APISectionComponents = ({ data, sdkVersion, componentsProps }: APISectionComponentsProps) =>
-  data?.length ? (
+const APISectionComponents = ({ data, sdkVersion, componentsProps }: APISectionComponentsProps) => {
+  if (!data?.length) {
+    return null;
+  }
+  const compoundNameByComponent = buildCompoundNameByComponent(data);
+  return (
     <>
       <H2 key="components-header">{data.length === 1 ? 'Component' : 'Components'}</H2>
       {data.map(component =>
@@ -111,10 +153,12 @@ const APISectionComponents = ({ data, sdkVersion, componentsProps }: APISectionC
           sdkVersion,
           componentsProps.filter(cp =>
             getPossibleComponentPropsNames(component.name, component.children).includes(cp.name)
-          )
+          ),
+          compoundNameByComponent
         )
       )}
     </>
-  ) : null;
+  );
+};
 
 export default APISectionComponents;

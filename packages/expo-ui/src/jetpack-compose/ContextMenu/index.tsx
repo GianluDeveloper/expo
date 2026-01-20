@@ -4,14 +4,14 @@ import { NativeSyntheticEvent, StyleProp, ViewStyle } from 'react-native';
 
 import { SubmenuProps } from './Submenu';
 import { MenuElement, transformChildrenToElementArray } from './utils';
-import { ExpoModifier } from '../../types';
+import { ModifierConfig } from '../../types';
 import { ButtonProps } from '../Button';
 import { PickerProps } from '../Picker';
 import { SwitchProps } from '../Switch';
 
 const MenuNativeView: React.ComponentType<NativeMenuProps> = requireNativeView(
   'ExpoUI',
-  'ContextMenu'
+  'ContextMenuView'
 );
 
 type SubmenuElement =
@@ -38,23 +38,9 @@ export type EventHandlers = Record<
 export type ContextMenuElementBase = { contextMenuElementID: string };
 
 /**
- * Activation method of the context menu.
- * - `singlePress`: The context menu is opened with a single tap. Does not isolate the content.
- * - `longPress`: The context menu is opened with a long press. On iOS additionally Highlights the content by blurring the background.
- */
-export type ActivationMethod = 'singlePress' | 'longPress';
-
-/**
  * Props of the `ContextMenu` component.
  */
 export type ContextMenuProps = {
-  /**
-   * Determines how the context menu will be activated.
-   *
-   * @platform ios
-   */
-  activationMethod?: ActivationMethod;
-
   /**
    * The contents of the submenu are used as an anchor for the context menu.
    * The children will be wrapped in a pressable element, which triggers opening of the context menu.
@@ -63,8 +49,6 @@ export type ContextMenuProps = {
 
   /**
    * The color of the container holding the context menu items.
-   *
-   * @platform android
    */
   color?: string;
 
@@ -73,8 +57,10 @@ export type ContextMenuProps = {
    */
   style?: StyleProp<ViewStyle>;
 
-  /** Modifiers for the component */
-  modifiers?: ExpoModifier[];
+  /**
+   * Modifiers for the component.
+   */
+  modifiers?: ModifierConfig[];
 };
 
 /**
@@ -145,8 +131,7 @@ function ContextMenu(props: ContextMenuProps) {
       onContextMenuButtonPressed={createEventHandler('onPress')}
       onContextMenuSwitchValueChanged={createEventHandler('onValueChange')}
       onContextMenuPickerOptionSelected={createEventHandler('onOptionSelected')}
-      // @ts-expect-error
-      modifiers={props.modifiers?.map((m) => m.__expo_shared_object_id__)}
+      modifiers={props.modifiers}
       {...props}>
       {activationElement}
     </MenuNativeView>

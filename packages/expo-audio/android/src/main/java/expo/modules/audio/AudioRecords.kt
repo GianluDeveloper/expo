@@ -15,7 +15,8 @@ class AudioSource(
 class AudioMode(
   @Field val shouldPlayInBackground: Boolean = false,
   @Field val shouldRouteThroughEarpiece: Boolean?,
-  @Field val interruptionMode: InterruptionMode?
+  @Field val interruptionMode: InterruptionMode?,
+  @Field val allowsBackgroundRecording: Boolean = false
 ) : Record
 
 // Data class because we want `equals`
@@ -86,9 +87,20 @@ enum class AndroidAudioEncoder(val value: String) : Enumerable {
   }
 }
 
+enum class LockScreenButtons(val value: Int) : Enumerable {
+  SEEK_FORWARD(0),
+  SEEK_BACKWARD(1)
+}
+
+class AudioLockScreenOptions(
+  @Field val showSeekForward: Boolean,
+  @Field val showSeekBackward: Boolean
+) : Record
+
 enum class InterruptionMode(val value: String) : Enumerable {
   DO_NOT_MIX("doNotMix"),
-  DUCK_OTHERS("duckOthers")
+  DUCK_OTHERS("duckOthers"),
+  MIX_WITH_OTHERS("mixWithOthers")
 }
 
 class RecordOptions(

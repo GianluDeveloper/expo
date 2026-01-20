@@ -63,7 +63,7 @@ class Env {
 
   /** Skip warning users about a dirty git status */
   get EXPO_NO_GIT_STATUS() {
-    return boolish('EXPO_NO_GIT_STATUS', false);
+    return boolish('EXPO_NO_GIT_STATUS', true);
   }
   /** Disable auto web setup */
   get EXPO_NO_WEB_SETUP() {
@@ -144,6 +144,16 @@ class Env {
   }
 
   /**
+   * Instructs a different Metro config to be loaded.
+   * The path, according to metro-config, should be a path relative to the current working directory.
+   * This flag is internal and was added for external tools.
+   * @internal
+   */
+  get EXPO_OVERRIDE_METRO_CONFIG(): string | undefined {
+    return process.env.EXPO_OVERRIDE_METRO_CONFIG?.trim() || undefined;
+  }
+
+  /**
    * Use the network inspector by overriding the metro inspector proxy with a custom version.
    * @deprecated This has been replaced by `@react-native/dev-middleware` and is now unused.
    */
@@ -169,11 +179,6 @@ class Env {
    */
   get EXPO_USE_STICKY_RESOLVER() {
     return boolish('EXPO_USE_STICKY_RESOLVER', false);
-  }
-
-  /** Enable the unstable fast resolver for Metro. */
-  get EXPO_USE_FAST_RESOLVER() {
-    return boolish('EXPO_USE_FAST_RESOLVER', false);
   }
 
   /** Disable Environment Variable injection in client bundles. */
@@ -271,6 +276,11 @@ class Env {
     return boolish('EXPO_FORCE_WEBCONTAINER_ENV', false);
   }
 
+  /** Force Expo CLI to run in webcontainer mode, this has impact on which URL Expo is using by default */
+  get EXPO_UNSTABLE_WEB_MODAL(): boolean {
+    return boolish('EXPO_UNSTABLE_WEB_MODAL', false);
+  }
+
   /** Disable by falsy value live binding in experimental import export support. Enabled by default. */
   get EXPO_UNSTABLE_LIVE_BINDINGS(): boolean {
     return boolish('EXPO_UNSTABLE_LIVE_BINDINGS', true);
@@ -285,6 +295,18 @@ class Env {
       return this.EXPO_STAGING ? 'staging-mcp.expo.dev' : 'mcp.expo.dev';
     }
     return value;
+  }
+
+  /** Enable Expo Log Box for iOS and Android (Web is enabled by default) */
+  get EXPO_UNSTABLE_LOG_BOX(): boolean {
+    return boolish('EXPO_UNSTABLE_LOG_BOX', false);
+  }
+
+  /**
+   * Enable Bonjour advertising of the Expo CLI on local networks
+   */
+  get EXPO_UNSTABLE_BONJOUR(): boolean {
+    return boolish('EXPO_UNSTABLE_BONJOUR', false);
   }
 }
 

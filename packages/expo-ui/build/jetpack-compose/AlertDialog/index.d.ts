@@ -1,4 +1,14 @@
 import { ExpoModifier } from '../../types';
+export type AlertDialogButtonColors = {
+    /**
+     * The background color of the button.
+     */
+    containerColor?: string;
+    /**
+     * The text color of the button.
+     */
+    contentColor?: string;
+};
 export type AlertDialogProps = {
     /**
      * The title of the alert dialog.
@@ -17,6 +27,14 @@ export type AlertDialogProps = {
      */
     dismissButtonText?: string;
     /**
+     * The colors for the confirm button.
+     */
+    confirmButtonColors?: AlertDialogButtonColors;
+    /**
+     * The colors for the dismiss button.
+     */
+    dismissButtonColors?: AlertDialogButtonColors;
+    /**
      * Whether the alert dialog is visible.
      *
      * @default false
@@ -30,7 +48,9 @@ export type AlertDialogProps = {
      * Callback that is called when the user tries to dismiss the dialog.
      */
     onDismissPressed?: () => void;
-    /** Modifiers for the component */
+    /**
+     * Modifiers for the component.
+     */
     modifiers?: ExpoModifier[];
 };
 export type NativeAlertDialogProps = AlertDialogProps;

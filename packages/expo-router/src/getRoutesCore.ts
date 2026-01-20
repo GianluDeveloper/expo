@@ -21,6 +21,8 @@ export type Options = {
   internal_stripLoadRoute?: boolean;
   /* Used to simplify by skipping the generated routes */
   skipGenerated?: boolean;
+  /** Skip routes created by `generateStaticParams()` */
+  skipStaticParams?: boolean;
   /* Skip the generated not found route  */
   notFound?: boolean;
   /* Enable experimental server middleware support */
@@ -31,6 +33,7 @@ export type Options = {
   platform?: string;
   redirects?: RedirectConfig[];
   rewrites?: RewriteConfig[];
+  headers?: Record<string, string | string[]>;
   /* Keep redirects as valid routes within the RouteConfig tree */
   preserveRedirectAndRewrites?: boolean;
 
@@ -381,6 +384,12 @@ function getDirectoryTree(contextModule: RequireContext, options: Options) {
             throw new Error(
               `The default export from route "${filePath}" is an async function. Ensure the React Component does not use async or promises.`
             );
+          }
+
+          // Validate loader export in development
+          const loaderExport = routeModule?.loader;
+          if (loaderExport && typeof loaderExport !== 'function') {
+            throw new Error(`Route "${filePath}" exports a loader that is not a function.`);
           }
         }
 

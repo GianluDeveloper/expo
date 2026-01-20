@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`server-output express server requests has expected routes manifest entries 1`] = `
+exports[`server-output express requests exported files has expected routes manifest entries 1`] = `
 {
   "apiRoutes": [
     {
@@ -37,6 +37,12 @@ exports[`server-output express server requests has expected routes manifest entr
       "file": "_expo/functions/api/headers+api.js",
       "namedRegex": "^/api/headers(?:/)?$",
       "page": "/api/headers",
+      "routeKeys": {},
+    },
+    {
+      "file": "_expo/functions/api/runtime+api.js",
+      "namedRegex": "^/api/runtime(?:/)?$",
+      "page": "/api/runtime",
       "routeKeys": {},
     },
     {
@@ -168,7 +174,7 @@ exports[`server-output express server requests has expected routes manifest entr
 }
 `;
 
-exports[`server-output workerd server requests has expected routes manifest entries 1`] = `
+exports[`server-output workerd requests exported files has expected routes manifest entries 1`] = `
 {
   "apiRoutes": [
     {
@@ -205,6 +211,12 @@ exports[`server-output workerd server requests has expected routes manifest entr
       "file": "_expo/functions/api/headers+api.js",
       "namedRegex": "^/api/headers(?:/)?$",
       "page": "/api/headers",
+      "routeKeys": {},
+    },
+    {
+      "file": "_expo/functions/api/runtime+api.js",
+      "namedRegex": "^/api/runtime(?:/)?$",
+      "page": "/api/runtime",
       "routeKeys": {},
     },
     {

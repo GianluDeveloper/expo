@@ -12,9 +12,13 @@ import expo.modules.kotlin.exception.DynamicCastException
 import expo.modules.kotlin.exception.MissingTypeConverter
 import expo.modules.kotlin.jni.CppType
 import expo.modules.kotlin.jni.ExpectedType
+import expo.modules.kotlin.jni.JavaScriptArrayBuffer
 import expo.modules.kotlin.jni.JavaScriptFunction
 import expo.modules.kotlin.jni.JavaScriptObject
 import expo.modules.kotlin.jni.JavaScriptValue
+import expo.modules.kotlin.jni.NativeArrayBuffer
+import expo.modules.kotlin.jni.worklets.Serializable
+import expo.modules.kotlin.jni.worklets.Worklet
 import expo.modules.kotlin.records.Record
 import expo.modules.kotlin.records.RecordTypeConverter
 import expo.modules.kotlin.sharedobjects.SharedObject
@@ -38,6 +42,8 @@ import expo.modules.kotlin.types.io.PathTypeConverter
 import expo.modules.kotlin.types.net.JavaURITypeConverter
 import expo.modules.kotlin.types.net.URLTypConverter
 import expo.modules.kotlin.types.net.UriTypeConverter
+import expo.modules.kotlin.types.worklets.SerializableTypeConverter
+import expo.modules.kotlin.types.worklets.WorkletTypeConverter
 import expo.modules.kotlin.views.ViewTypeConverter
 import java.io.File
 import java.net.URI
@@ -199,6 +205,8 @@ object TypeConverterProviderImpl : TypeConverterProvider {
       ExpectedType(CppType.BOOLEAN)
     ) { it.asBoolean() }
 
+    val serializableTypeConverter = SerializableTypeConverter()
+
     val converters = mapOf(
       Int::class to intTypeConverter,
       java.lang.Integer::class to intTypeConverter,
@@ -234,6 +242,15 @@ object TypeConverterProviderImpl : TypeConverterProvider {
       JavaScriptObject::class to createTrivialTypeConverter(
         ExpectedType(CppType.JS_OBJECT)
       ),
+      JavaScriptArrayBuffer::class to createTrivialTypeConverter(
+        ExpectedType(CppType.JS_ARRAY_BUFFER)
+      ),
+      NativeArrayBuffer::class to createTrivialTypeConverter(
+        ExpectedType(CppType.NATIVE_ARRAY_BUFFER)
+      ),
+
+      Serializable::class to serializableTypeConverter,
+      Worklet::class to WorkletTypeConverter(serializableTypeConverter),
 
       Int8Array::class to Int8ArrayTypeConverter(),
       Int16Array::class to Int16ArrayTypeConverter(),

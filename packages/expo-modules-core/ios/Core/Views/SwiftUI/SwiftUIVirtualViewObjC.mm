@@ -8,10 +8,11 @@
  */
 
 #import <ExpoModulesCore/SwiftUIVirtualViewObjC.h>
-
 #import <ExpoModulesCore/ExpoViewComponentDescriptor.h>
-#import <ExpoModulesCore/EXJSIConversions.h>
 #import <ExpoModulesCore/SwiftUIViewProps.h>
+
+#import <ExpoModulesJSI/EXJSIConversions.h>
+
 #import <React/RCTAssert.h>
 #import <React/RCTComponentViewProtocol.h>
 
@@ -79,12 +80,12 @@ static NSString *normalizeEventName(NSString *eventName)
  Cache for component flavors, where the key is a view class name and value is the flavor.
  Flavors must be cached in order to keep using the same component handle after app reloads.
  */
-static std::unordered_map<std::string, expo::ExpoViewComponentDescriptor::Flavor> _componentFlavorsCache;
+static std::unordered_map<std::string, expo::ExpoViewComponentDescriptor<>::Flavor> _componentFlavorsCache;
 
 @implementation SwiftUIVirtualViewObjC {
   react::SharedViewProps _props;
   react::SharedViewEventEmitter _eventEmitter;
-  expo::ExpoViewShadowNode::ConcreteState::Shared _state;
+  expo::ExpoViewShadowNode<>::ConcreteState::Shared _state;
 }
 
 - (instancetype)init
@@ -212,7 +213,7 @@ static std::unordered_map<std::string, expo::ExpoViewComponentDescriptor::Flavor
 
   // We're caching the flavor pointer so that the component handle stay the same for the same class name.
   // Otherwise, the component handle would change after reload which may cause memory leaks and unexpected view recycling behavior.
-  expo::ExpoViewComponentDescriptor::Flavor flavor = _componentFlavorsCache[className];
+  expo::ExpoViewComponentDescriptor<>::Flavor flavor = _componentFlavorsCache[className];
 
   if (flavor == nullptr) {
     flavor = _componentFlavorsCache[className] = std::make_shared<std::string const>(className);
@@ -225,7 +226,7 @@ static std::unordered_map<std::string, expo::ExpoViewComponentDescriptor::Flavor
     componentHandle,
     componentName,
     flavor,
-    &facebook::react::concreteComponentDescriptorConstructor<expo::ExpoViewComponentDescriptor>
+    &facebook::react::concreteComponentDescriptorConstructor<expo::ExpoViewComponentDescriptor<>>
   };
 }
 
@@ -342,7 +343,7 @@ static std::unordered_map<std::string, expo::ExpoViewComponentDescriptor::Flavor
 
 - (void)updateState:(react::State::Shared const &)state oldState:(react::State::Shared const &)oldState
 {
-  _state = std::static_pointer_cast<const expo::ExpoViewShadowNode::ConcreteState>(state);
+  _state = std::static_pointer_cast<const expo::ExpoViewShadowNode<>::ConcreteState>(state);
 }
 
 - (void)viewDidUpdateProps
@@ -357,10 +358,25 @@ static std::unordered_map<std::string, expo::ExpoViewComponentDescriptor::Flavor
   }
 }
 
+- (void)setStyleSize:(nullable NSNumber *)width height:(nullable NSNumber *)height
+{
+  if (_state) {
+    float widthValue = width ? [width floatValue] : std::numeric_limits<float>::quiet_NaN();
+    float heightValue = height ? [height floatValue] : std::numeric_limits<float>::quiet_NaN();
+    _state->updateState(expo::ExpoViewState::withStyleDimensions(widthValue, heightValue));
+  }
+}
+
 - (BOOL)supportsPropWithName:(nonnull NSString *)name
 {
   // Implemented in `SwiftUIVirtualView.swift`
   return NO;
+}
+
+- (void)invalidate
+{
+  // Default implementation does nothing.
+  [self prepareForRecycle];
 }
 
 @end

@@ -28,6 +28,7 @@
 #endif // !RCT_NEW_ARCH_ENABLED
 
 @class EXAppContext;
+@class EXViewModuleWrapper;
 
 // Addition to the interface that is visible in both Swift and Objective-C
 @interface ExpoFabricViewObjC (ExpoFabricViewInterface)
@@ -39,6 +40,8 @@
 - (void)viewDidUpdateProps;
 
 - (void)setShadowNodeSize:(float)width height:(float)height;
+
+- (void)setStyleSize:(nullable NSNumber *)width height:(nullable NSNumber *)height;
 
 - (BOOL)supportsPropWithName:(nonnull NSString *)name;
 
@@ -55,5 +58,12 @@
  * Called for unmounting (detaching) a child component view from `self` component view.
  */
 - (void)unmountChildComponentView:(nonnull UIView *)childComponentView index:(NSInteger)index;
+
+#pragma mark - Component registration
+
+/**
+ Registers given view module in the global `RCTComponentViewFactory`.
+ */
++ (void)registerComponent:(nonnull EXViewModuleWrapper *)viewModule appContext:(nonnull EXAppContext *)appContext;
 
 @end

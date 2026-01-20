@@ -16,7 +16,9 @@ import { NotificationBoxIcon } from '@expo/styleguide-icons/outline/Notification
 import { PaletteIcon } from '@expo/styleguide-icons/outline/PaletteIcon';
 import { Phone01Icon } from '@expo/styleguide-icons/outline/Phone01Icon';
 import { PlaySquareIcon } from '@expo/styleguide-icons/outline/PlaySquareIcon';
+import { PuzzlePiece01Icon } from '@expo/styleguide-icons/outline/PuzzlePiece01Icon';
 import { Rocket01Icon } from '@expo/styleguide-icons/outline/Rocket01Icon';
+import { Star06Icon } from '@expo/styleguide-icons/outline/Star06Icon';
 import { TerminalBrowserIcon } from '@expo/styleguide-icons/outline/TerminalBrowserIcon';
 import { useRouter } from 'next/compat/router';
 
@@ -226,6 +228,8 @@ function shouldSkipTitle(info: NavigationRoute, parentGroup?: NavigationRoute) {
 
 function getIconElement(iconName?: string) {
   switch (iconName) {
+    case 'AI':
+      return Star06Icon;
     case 'Develop':
       return TerminalBrowserIcon;
     case 'Review':
@@ -256,6 +260,8 @@ function getIconElement(iconName?: string) {
       return RouterLogo;
     case 'Push notifications':
       return NotificationBoxIcon;
+    case 'Integrations':
+      return PuzzlePiece01Icon;
     case 'Distribution':
       return Phone01Icon;
     case 'UI programming':

@@ -4,18 +4,20 @@ import { createContext, use, type ComponentType, type PropsWithChildren } from '
 
 import { getContextKey } from './matchers';
 import { sortRoutesWithInitial, sortRoutes } from './sortRoutes';
+import { LoaderFunction } from './types';
 import { type ErrorBoundaryProps } from './views/Try';
 
 export type DynamicConvention = { name: string; deep: boolean; notFound?: boolean };
+
+type Params = Record<string, string | string[]>;
 
 export type LoadedRoute = {
   ErrorBoundary?: ComponentType<ErrorBoundaryProps>;
   default?: ComponentType<any>;
   unstable_settings?: Record<string, any>;
   getNavOptions?: (args: any) => any;
-  generateStaticParams?: (props: {
-    params?: Record<string, string | string[]>;
-  }) => Record<string, string | string[]>[];
+  generateStaticParams?: (props: { params?: Params }) => Params[];
+  loader?: LoaderFunction;
 };
 
 export type LoadedMiddleware = Pick<LoadedRoute, 'default' | 'unstable_settings'>;
@@ -44,6 +46,8 @@ export type RouteNode = {
   contextKey: string;
   /** Redirect Context Module ID, used for matching children. */
   destinationContextKey?: string;
+  /** Parent Context Module ID, used for matching static routes to their parent dynamic route. */
+  parentContextKey?: string;
   /** Is the redirect permanent. */
   permanent?: boolean;
   /** Added in-memory */
@@ -59,9 +63,7 @@ export type RouteNode = {
 };
 
 const CurrentRouteContext = createContext<RouteNode | null>(null);
-export const LocalRouteParamsContext = createContext<
-  Record<string, string | undefined> | undefined
->({});
+export const LocalRouteParamsContext = createContext<object | undefined>({});
 
 if (process.env.NODE_ENV !== 'production') {
   CurrentRouteContext.displayName = 'RouteNode';
@@ -82,13 +84,13 @@ export function useContextKey(): string {
 
 export type RouteProps = PropsWithChildren<{
   node: RouteNode;
-  route?: { params: Record<string, string | undefined> };
+  params: object | undefined;
 }>;
 
 /** Provides the matching routes and filename to the children. */
-export function Route({ children, node, route }: RouteProps) {
+export function Route({ children, node, params }: RouteProps) {
   return (
-    <LocalRouteParamsContext.Provider value={route?.params}>
+    <LocalRouteParamsContext.Provider value={params}>
       <CurrentRouteContext.Provider value={node}>{children}</CurrentRouteContext.Provider>
     </LocalRouteParamsContext.Provider>
   );

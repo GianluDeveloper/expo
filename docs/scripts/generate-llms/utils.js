@@ -13,6 +13,13 @@ export const DESCRIPTION =
 export const DESCRIPTION_EAS =
   'Expo Application Services (EAS) are deeply integrated cloud services for Expo and React Native apps, from the team behind Expo.';
 
+const EAS_RESOURCE_CLASSES = {
+  android: ['medium', 'large'],
+  ios: ['medium', 'large'],
+};
+
+const EAS_JSON_TABLE_HEADER = '| Property | Description |\n| --- | --- |';
+
 export function processPageData(pageHref, pageName) {
   if (!pageHref || pageHref.startsWith('http')) {
     return null;
@@ -113,6 +120,10 @@ export function cleanContent(content) {
     return '';
   }
 
+  const hasEasJsonTables = content.includes('<EasJsonPropertiesTable');
+  const easSchemaImports = hasEasJsonTables ? extractSchemaImports(content) : {};
+  const easSchemaTableCache = hasEasJsonTables ? new Map() : null;
+
   const parts = content.split(/(```[\S\s]*?```|```\w+[\S\s]*?```)/);
 
   const processed = parts.map((part, index) => {
@@ -130,6 +141,9 @@ export function cleanContent(content) {
     }
 
     let processed = part
+      .replace(/<EasJsonPropertiesTable\s+schema={(\w+)}\s*\/>/g, (_match, schemaName) =>
+        replaceEasJsonPropertiesTable(schemaName, easSchemaImports, easSchemaTableCache)
+      )
       .replace(/<RedirectNotification[^>]*>[\S\s]*?<\/RedirectNotification>/g, '')
       .replace(/\/\*\s*@(?:info|hide)\s*\*\/(?:(?!\/\*\s*@end)[\S\s])*\/\*\s*@end\s*\*\//g, '')
       .replace(/{\s*\/\*\s*todo:\s*[\S\s]*?\*\/\s*}/gi, '')
@@ -171,7 +185,18 @@ export function cleanContent(content) {
       .replace(/<\/PaddedAPIBox>/g, '')
       .replace(/<CodeBlocksTable[^>]*>/g, '')
       .replace(/<\/CodeBlocksTable>/g, '')
-      .replace(/<FileTree[\S\s]*?\/>/g, '')
+      .replace(/<FileTree\s+files={(\[[\S\s]*?])}\s*\/>/g, (_match, filesLiteral) => {
+        const files = parseFileTreeFilesLiteral(filesLiteral);
+        if (!files || files.length === 0) {
+          return '';
+        }
+        const structure = buildFileTreeStructure(files);
+        const lines = renderFileTreeAscii(structure);
+        if (lines.length === 0) {
+          return '';
+        }
+        return ['```', ...lines, '```'].join('\n');
+      })
       .replace(
         /<ContentSpotlight(?:\s+(?:src|file|alt|controls|caption|className|loop|containerClassName)(?:="[^"]*"|={`[^`]*`})?)*\s*\/>/g,
         ''
@@ -216,6 +241,241 @@ export function cleanContent(content) {
   });
 
   return processed.join('').replace(/^\s*[\n\r]/gm, '');
+}
+
+function extractSchemaImports(content) {
+  const schemaImportRegex =
+    /import\s+(\w+)\s+from\s+["']([^"']*\/public\/static\/schemas[^"']+)["']/g;
+  const map = {};
+  let match;
+
+  while ((match = schemaImportRegex.exec(content))) {
+    map[match[1]] = match[2];
+  }
+
+  return map;
+}
+
+function replaceEasJsonPropertiesTable(schemaName, schemaImports, tableCache) {
+  if (!schemaImports?.[schemaName]) {
+    return '';
+  }
+
+  const importPath = schemaImports[schemaName];
+  if (tableCache?.has(importPath)) {
+    return tableCache.get(importPath);
+  }
+
+  const markdown = generateEasJsonPropertiesTableMarkdown(importPath);
+  const wrapped = markdown ? `\n${markdown}\n` : '';
+  if (tableCache) {
+    tableCache.set(importPath, wrapped);
+  }
+
+  return wrapped;
+}
+
+function generateEasJsonPropertiesTableMarkdown(importPath) {
+  const schema = loadEasJsonSchema(importPath);
+  if (!Array.isArray(schema) || schema.length === 0) {
+    return '';
+  }
+
+  const rows = [];
+  schema.forEach(property => {
+    appendEasJsonProperty(rows, property, 0);
+  });
+
+  return `${EAS_JSON_TABLE_HEADER}\n${rows.join('\n')}`;
+}
+
+function loadEasJsonSchema(importPath) {
+  const schemaPath = resolveSchemaImportPath(importPath);
+  if (!schemaPath) {
+    return [];
+  }
+
+  try {
+    const source = fs.readFileSync(schemaPath, 'utf-8');
+    const sanitized = source.replace(/^import.*$/gm, '').replace(/export default/, 'return');
+    // eslint-disable-next-line no-new-func
+    const factory = new Function('ResourceClasses', sanitized);
+    return factory(EAS_RESOURCE_CLASSES);
+  } catch (error) {
+    console.warn(`Unable to parse schema file at ${schemaPath}:`, error.message);
+    return [];
+  }
+}
+
+function resolveSchemaImportPath(importPath) {
+  if (!importPath) {
+    return '';
+  }
+
+  if (importPath.startsWith('~/')) {
+    return path.join(process.cwd(), importPath.slice(2));
+  }
+
+  if (importPath.startsWith('/')) {
+    return path.join(process.cwd(), importPath.slice(1));
+  }
+
+  return path.join(process.cwd(), importPath);
+}
+
+function appendEasJsonProperty(rows, property, level) {
+  const indent = level === 0 ? '' : '&nbsp;'.repeat(level * 4) + '• ';
+  const nameCell = `${indent}\`${property.name}\``;
+  const descriptionCell = formatEasJsonPropertyDescription(property);
+
+  rows.push(`| ${escapePipes(nameCell)} | ${escapePipes(descriptionCell)} |`);
+
+  (property.properties ?? []).forEach(child => {
+    appendEasJsonProperty(rows, child, level + 1);
+  });
+}
+
+function formatEasJsonPropertyDescription(property) {
+  const type = getEasJsonPropertyType(property);
+  const parts = [];
+
+  if (type) {
+    parts.push(`**(${type})**`);
+  }
+
+  const description = Array.isArray(property.description)
+    ? property.description.filter(Boolean).join(' ')
+    : (property.description ?? '');
+
+  if (description) {
+    parts.push(description);
+  }
+
+  return parts.join(' - ');
+}
+
+function getEasJsonPropertyType(property) {
+  if (property.enum) {
+    return `enum: ${property.enum.join(', ')}`;
+  }
+
+  if (Array.isArray(property.type)) {
+    return property.type.join(' || ');
+  }
+
+  return property.type ?? '';
+}
+
+function escapePipes(value) {
+  return value.replace(/\|/g, '\\|');
+}
+
+function parseFileTreeFilesLiteral(literal) {
+  const parse = value => {
+    // eslint-disable-next-line no-new-func
+    return new Function(`return (${value})`)();
+  };
+
+  const sanitizeFileTreeFilesLiteral = value => {
+    const stripTags = text =>
+      text
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    const toJSONString = text => JSON.stringify(stripTags(text));
+
+    let sanitized = value;
+
+    sanitized = sanitized.replace(/<code>([\S\s]*?)<\/code>/gi, (_, inner) => toJSONString(inner));
+    sanitized = sanitized.replace(/<a[^>]*>([\S\s]*?)<\/a>/gi, (_, inner) => toJSONString(inner));
+    sanitized = sanitized.replace(/<span[^>]*>([\S\s]*?)<\/span>/gi, (_, inner) =>
+      toJSONString(inner)
+    );
+    sanitized = sanitized.replace(/<callout[^>]*>([\S\s]*?)<\/callout>/gi, (_, inner) =>
+      toJSONString(inner)
+    );
+    sanitized = sanitized.replace(/<strong[^>]*>([\S\s]*?)<\/strong>/gi, (_, inner) =>
+      toJSONString(inner)
+    );
+    sanitized = sanitized.replace(/<b[^>]*>([\S\s]*?)<\/b>/gi, (_, inner) => toJSONString(inner));
+
+    sanitized = sanitized.replace(/<>\s*([\S\s]*?)\s*<\/>/g, (_, inner) => toJSONString(inner));
+    sanitized = sanitized.replace(/<[^>]+\/>/g, '');
+    sanitized = sanitized.replace(/<[^>]+>/g, '');
+
+    return sanitized;
+  };
+
+  try {
+    return parse(literal);
+    // eslint-disable-next-line no-unused-vars
+  } catch (error) {
+    try {
+      return parse(sanitizeFileTreeFilesLiteral(literal));
+    } catch (sanitizedError) {
+      console.warn('Unable to parse FileTree files literal:', sanitizedError);
+      return [];
+    }
+  }
+}
+
+function buildFileTreeStructure(files = []) {
+  const root = [];
+
+  function modifyPath(path, note) {
+    const segments = path.split('/');
+    let currentLevel = root;
+
+    segments.forEach((segment, index) => {
+      let existing = currentLevel.find(node => node.name === segment);
+      if (!existing) {
+        existing = { name: segment, note: undefined, children: [] };
+        currentLevel.push(existing);
+      }
+
+      if (note && index === segments.length - 1) {
+        existing.note = note;
+      }
+
+      currentLevel = existing.children;
+    });
+  }
+
+  files.forEach(entry => {
+    if (Array.isArray(entry)) {
+      modifyPath(entry[0], entry[1]);
+    } else if (typeof entry === 'string') {
+      modifyPath(entry);
+    }
+  });
+
+  return root;
+}
+
+function renderFileTreeAscii(structure) {
+  const lines = [];
+
+  function renderNodes(nodes, prefix) {
+    nodes.forEach((node, index) => {
+      const isLast = index === nodes.length - 1;
+      const connector = `${prefix}${isLast ? '└── ' : '├── '}`;
+      const isDirectory = node.children.length > 0;
+      const name = isDirectory ? `${node.name}/` : node.name;
+      const note = node.note ? `  # ${node.note}` : '';
+
+      lines.push(`${connector}${name}${note}`);
+
+      if (isDirectory) {
+        const childPrefix = `${prefix}${isLast ? '    ' : '│   '}`;
+        renderNodes(node.children, childPrefix);
+      }
+    });
+  }
+
+  renderNodes(structure, '');
+
+  return lines;
 }
 
 function generateItemMarkdown(item) {

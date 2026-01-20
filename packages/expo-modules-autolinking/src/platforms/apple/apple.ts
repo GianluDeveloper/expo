@@ -1,34 +1,30 @@
 import spawnAsync from '@expo/spawn-async';
 import fs from 'fs';
-import { glob } from 'glob';
 import path from 'path';
 
-import { fileExistsAsync } from '../../fileUtils';
 import type {
   AppleCodeSignEntitlements,
   ExtraDependencies,
   ModuleDescriptorIos,
+  ModuleIosConfig,
   ModuleIosPodspecInfo,
   PackageRevision,
 } from '../../types';
+import { listFilesInDirectories, fileExistsAsync } from '../../utils';
 
 const APPLE_PROPERTIES_FILE = 'Podfile.properties.json';
 const APPLE_EXTRA_BUILD_DEPS_KEY = 'apple.extraPods';
 
 const indent = '  ';
 
+/** Find all *.podspec files in top-level directories */
 async function findPodspecFiles(revision: PackageRevision): Promise<string[]> {
   const configPodspecPaths = revision.config?.applePodspecPaths();
   if (configPodspecPaths && configPodspecPaths.length) {
     return configPodspecPaths;
+  } else {
+    return await listFilesInDirectories(revision.path, (basename) => basename.endsWith('.podspec'));
   }
-
-  const podspecFiles = await glob('*/*.podspec', {
-    cwd: revision.path,
-    ignore: ['**/node_modules/**'],
-  });
-
-  return podspecFiles;
 }
 
 export function getSwiftModuleNames(
@@ -66,7 +62,11 @@ export async function resolveModuleAsync(
     pods,
     swiftModuleNames,
     flags: extraOutput.flags,
-    modules: revision.config?.appleModules() ?? [],
+    modules:
+      revision.config
+        ?.appleModules()
+        .map((module) => (typeof module === 'string' ? { name: null, class: module } : module)) ??
+      [],
     appDelegateSubscribers: revision.config?.appleAppDelegateSubscribers() ?? [],
     reactDelegateHandlers: revision.config?.appleReactDelegateHandlers() ?? [],
     debugOnly: revision.config?.appleDebugOnly() ?? false,
@@ -136,11 +136,11 @@ async function generatePackageListFileContentAsync(
     .concat(...debugOnlyModules.map((module) => module.swiftModuleNames))
     .filter(Boolean);
 
-  const modulesClassNames = ([] as string[])
+  const modulesClassNames = ([] as ModuleIosConfig[])
     .concat(...modulesToImport.map((module) => module.modules))
     .filter(Boolean);
 
-  const debugOnlyModulesClassNames = ([] as string[])
+  const debugOnlyModulesClassNames = ([] as ModuleIosConfig[])
     .concat(...debugOnlyModules.map((module) => module.modules))
     .filter(Boolean);
 
@@ -167,17 +167,17 @@ async function generatePackageListFileContentAsync(
  * but only these that are written in Swift and use the new API for creating Expo modules.
  */
 
-import ExpoModulesCore
+@_implementationOnly import ExpoModulesCore
 ${generateCommonImportList(swiftModules)}
 ${generateDebugOnlyImportList(debugOnlySwiftModules)}
 @objc(${className})
-public class ${className}: ModulesProvider {
-  public override func getModuleClasses() -> [AnyModule.Type] {
+internal class ${className}: ModulesProvider {
+  public override func getModuleClasses() -> [ExpoModuleTupleType] {
 ${generateModuleClasses(modulesClassNames, debugOnlyModulesClassNames)}
   }
 
   public override func getAppDelegateSubscribers() -> [ExpoAppDelegateSubscriber.Type] {
-${generateModuleClasses(appDelegateSubscribers, debugOnlyAppDelegateSubscribers)}
+${generateClasses(appDelegateSubscribers, debugOnlyAppDelegateSubscribers)}
   }
 
   public override func getReactDelegateHandlers() -> [ExpoReactDelegateHandlerTupleType] {
@@ -192,7 +192,7 @@ ${generateReactDelegateHandlers(reactDelegateHandlerModules, debugOnlyReactDeleg
 }
 
 function generateCommonImportList(swiftModules: string[]): string {
-  return swiftModules.map((moduleName) => `import ${moduleName}`).join('\n');
+  return swiftModules.map((moduleName) => `@_implementationOnly import ${moduleName}`).join('\n');
 }
 
 function generateDebugOnlyImportList(swiftModules: string[]): string {
@@ -203,12 +203,36 @@ function generateDebugOnlyImportList(swiftModules: string[]): string {
   return (
     wrapInDebugConfigurationCheck(
       0,
-      swiftModules.map((moduleName) => `import ${moduleName}`).join('\n')
+      swiftModules.map((moduleName) => `@_implementationOnly import ${moduleName}`).join('\n')
     ) + '\n'
   );
 }
 
-function generateModuleClasses(classNames: string[], debugOnlyClassName: string[]): string {
+function generateModuleClasses(
+  modules: ModuleIosConfig[],
+  debugOnlyModules: ModuleIosConfig[]
+): string {
+  const commonClassNames = formatArrayOfModuleTuples(modules);
+  if (debugOnlyModules.length > 0) {
+    return wrapInDebugConfigurationCheck(
+      2,
+      `return ${formatArrayOfModuleTuples(modules.concat(debugOnlyModules))}`,
+      `return ${commonClassNames}`
+    );
+  } else {
+    return `${indent.repeat(2)}return ${commonClassNames}`;
+  }
+}
+
+/**
+ * Formats an array of modules config to Swift's array of module tuples.
+ */
+function formatArrayOfModuleTuples(modules: ModuleIosConfig[]): string {
+  return `[${modules.map((module) => `\n${indent.repeat(3)}(module: ${module.class}.self, name: ${module.name ? `"${module.name}"` : 'nil'})`).join(',')}
+${indent.repeat(2)}]`;
+}
+
+function generateClasses(classNames: string[], debugOnlyClassName: string[]): string {
   const commonClassNames = formatArrayOfClassNames(classNames);
   if (debugOnlyClassName.length > 0) {
     return wrapInDebugConfigurationCheck(

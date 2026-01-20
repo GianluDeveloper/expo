@@ -2,7 +2,10 @@ package expo.modules.filesystem
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
+import android.util.Base64
 import android.webkit.URLUtil
+import androidx.annotation.RequiresApi
 import expo.modules.interfaces.filesystem.Permission
 import expo.modules.kotlin.activityresult.AppContextActivityResultLauncher
 import expo.modules.kotlin.apifeatures.EitherType
@@ -18,12 +21,12 @@ import okhttp3.Request
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URI
-import java.util.EnumSet
 
 class FileSystemModule : Module() {
   private val context: Context
     get() = appContext.reactContext ?: throw Exceptions.AppContextLost()
 
+  @RequiresApi(Build.VERSION_CODES.O)
   @OptIn(EitherType::class)
   override fun definition() = ModuleDefinition {
     Name("FileSystem")
@@ -96,7 +99,9 @@ class FileSystemModule : Module() {
     }
 
     AsyncFunction("pickDirectoryAsync") Coroutine { initialUri: Uri? ->
-      val result = filePickerLauncher.launch(FilePickerContractOptions(initialUri, null, PickerType.DIRECTORY))
+      val result = filePickerLauncher.launch(
+        FilePickerContractOptions(initialUri, null, PickerType.DIRECTORY)
+      )
       when (result) {
         is FilePickerContractResult.Success -> result.path as FileSystemDirectory
         is FilePickerContractResult.Cancelled -> throw PickerCancelledException()
@@ -104,7 +109,9 @@ class FileSystemModule : Module() {
     }
 
     AsyncFunction("pickFileAsync") Coroutine { initialUri: Uri?, mimeType: String? ->
-      val result = filePickerLauncher.launch(FilePickerContractOptions(initialUri, mimeType, PickerType.FILE))
+      val result = filePickerLauncher.launch(
+        FilePickerContractOptions(initialUri, mimeType, PickerType.FILE)
+      )
       when (result) {
         is FilePickerContractResult.Success -> result.path as FileSystemFile
         is FilePickerContractResult.Cancelled -> throw PickerCancelledException()
@@ -113,8 +120,12 @@ class FileSystemModule : Module() {
 
     Function("info") { url: URI ->
       val file = File(url)
-      val permissions = appContext.filePermission?.getPathPermissions(appContext.reactContext, file.path)
-        ?: EnumSet.noneOf(Permission::class.java)
+      val permissions = appContext
+        .filePermission
+        .getPathPermissions(
+          appContext.reactContext ?: throw Exceptions.ReactContextLost(),
+          file.path
+        )
       if (permissions.contains(Permission.READ) && file.exists()) {
         PathInfo(exists = file.exists(), isDirectory = file.isDirectory)
       } else {
@@ -138,10 +149,14 @@ class FileSystemModule : Module() {
         file.create(options ?: CreateOptions())
       }
 
-      Function("write") { file: FileSystemFile, content: Either<String, TypedArray> ->
+      Function("write") { file: FileSystemFile, content: Either<String, TypedArray>, options: WriteOptions? ->
         if (content.`is`(String::class)) {
           content.get(String::class).let {
-            file.write(it)
+            if (options?.encoding == EncodingType.BASE64) {
+              file.write(Base64.decode(it, Base64.DEFAULT))
+            } else {
+              file.write(it)
+            }
           }
         }
         if (content.`is`(TypedArray::class)) {
@@ -205,6 +220,10 @@ class FileSystemModule : Module() {
 
       Property("uri") { file ->
         file.asString()
+      }
+
+      Property("contentUri") { file ->
+        file.asContentUri()
       }
 
       Property("md5") { file ->
