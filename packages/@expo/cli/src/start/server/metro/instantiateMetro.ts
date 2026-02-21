@@ -8,7 +8,7 @@ import MetroHmrServer, { Client as MetroHmrClient } from '@expo/metro/metro/HmrS
 import RevisionNotFoundError from '@expo/metro/metro/IncrementalBundler/RevisionNotFoundError';
 import type MetroServer from '@expo/metro/metro/Server';
 import formatBundlingError from '@expo/metro/metro/lib/formatBundlingError';
-import { mergeConfig, resolveConfig, type ConfigT } from '@expo/metro/metro-config';
+import { InputConfigT, mergeConfig, resolveConfig, type ConfigT } from '@expo/metro/metro-config';
 import { Terminal } from '@expo/metro/metro-core';
 import { createStableModuleIdFactory, getDefaultConfig } from '@expo/metro-config';
 import chalk from 'chalk';
@@ -97,8 +97,14 @@ export async function loadMetroConfigAsync(
 ) {
   let reportEvent: ((event: any) => void) | undefined;
 
+  // We're resolving a monorepo root, higher up than the `projectRoot`. If this
+  // folder is different (presumably a parent) we're in a monorepo
+  const serverRoot = getMetroServerRoot(projectRoot);
+  const isWorkspace = serverRoot !== projectRoot;
+
+  // Autolinking Module Resolution will be enabled by default when we're in a monorepo
   const autolinkingModuleResolutionEnabled =
-    exp.experiments?.autolinkingModuleResolution ?? env.EXPO_USE_STICKY_RESOLVER;
+    exp.experiments?.autolinkingModuleResolution ?? isWorkspace;
 
   const serverActionsEnabled =
     exp.experiments?.reactServerFunctions ?? env.EXPO_UNSTABLE_SERVER_FUNCTIONS;
@@ -116,7 +122,6 @@ export async function loadMetroConfigAsync(
     Log.warn(`React 19 is enabled by default. Remove unused experiments.reactCanary flag.`);
   }
 
-  const serverRoot = getMetroServerRoot(projectRoot);
   const terminalReporter = new MetroTerminalReporter(serverRoot, terminal);
 
   // NOTE: Allow external tools to override the metro config. This is considered internal and unstable
@@ -155,6 +160,15 @@ export async function loadMetroConfigAsync(
     },
   };
 
+  // NOTE(@kitten): `useWatchman` is currently enabled by default, but it also disables `forceNodeFilesystemAPI`.
+  // If we instead set it to the special value `null`, it gets enables but also bypasses the "native find" codepath,
+  // which is slower than just using the Node filesystem API
+  // See: https://github.com/facebook/metro/blob/b9c243f/packages/metro-file-map/src/index.js#L326
+  // See: https://github.com/facebook/metro/blob/b9c243f/packages/metro/src/node-haste/DependencyGraph/createFileMap.js#L109
+  if (config.resolver.useWatchman === true) {
+    asWritable(config.resolver).useWatchman = null as any;
+  }
+
   globalThis.__requireCycleIgnorePatterns = config.resolver?.requireCycleIgnorePatterns;
 
   if (isExporting) {
@@ -172,6 +186,10 @@ export async function loadMetroConfigAsync(
     Log.log(chalk.gray`React Compiler enabled`);
   }
 
+  if (autolinkingModuleResolutionEnabled) {
+    Log.log(chalk.gray`Expo Autolinking module resolution enabled`);
+  }
+
   if (env.EXPO_UNSTABLE_TREE_SHAKING && !env.EXPO_UNSTABLE_METRO_OPTIMIZE_GRAPH) {
     throw new CommandError(
       'EXPO_UNSTABLE_TREE_SHAKING requires EXPO_UNSTABLE_METRO_OPTIMIZE_GRAPH to be enabled.'
@@ -186,9 +204,6 @@ export async function loadMetroConfigAsync(
   }
   if (env.EXPO_UNSTABLE_LOG_BOX) {
     Log.warn(`Experimental Expo LogBox is enabled.`);
-  }
-  if (autolinkingModuleResolutionEnabled) {
-    Log.warn(`Experimental Expo Autolinking module resolver is enabled.`);
   }
 
   if (serverActionsEnabled) {
@@ -216,10 +231,14 @@ export async function loadMetroConfigAsync(
   };
 }
 
+interface InstantiateMetroConfigOptions extends LoadMetroConfigOptions {
+  host?: string;
+}
+
 /** The most generic possible setup for Metro bundler. */
 export async function instantiateMetroAsync(
   metroBundler: MetroBundlerDevServer,
-  options: LoadMetroConfigOptions,
+  options: InstantiateMetroConfigOptions,
   {
     isExporting,
     exp = getConfig(metroBundler.projectRoot, {
@@ -283,7 +302,7 @@ export async function instantiateMetroAsync(
       return middleware.use(metroMiddleware);
     };
 
-    const devtoolsWebsocketEndpoints = createDevToolsPluginWebsocketEndpoint({ serverBaseUrl });
+    const devtoolsWebsocketEndpoints = createDevToolsPluginWebsocketEndpoint();
     Object.assign(websocketEndpoints, devtoolsWebsocketEndpoints);
   }
 
@@ -302,6 +321,7 @@ export async function instantiateMetroAsync(
     metroBundler,
     metroConfig,
     {
+      host: options.host,
       websocketEndpoints,
       watch: !isExporting && isWatchEnabled(),
     },

@@ -25,9 +25,10 @@ export default function ToolbarScreen() {
   const [showMicButton, setShowMicButton] = useState(!!params.micButton);
   const [showCustomView, setShowCustomView] = useState(false);
   const [showMenu, setShowMenu] = useState(!!params.menu);
+  const [showXcassetButton, setShowXcassetButton] = useState(false);
+  const [showXcassetMenu, setShowXcassetMenu] = useState(false);
   const [showFixedSpacer, setShowFixedSpacer] = useState(false);
   const [fixedSpacerShareBackground, setFixedSpacerShareBackground] = useState(false);
-  const [fixedSpacerHideSharedBackground, setFixedSpacerHideSharedBackground] = useState(false);
   const [fixedSpacerWidth, setFixedSpacerWidth] = useState(20);
 
   // State for search functionality
@@ -197,6 +198,24 @@ export default function ToolbarScreen() {
           </View>
 
           <View style={styles.switchRow}>
+            <Text style={styles.label}>Show Xcasset Button</Text>
+            <Switch
+              testID="toggle-xcasset-button"
+              value={showXcassetButton}
+              onValueChange={setShowXcassetButton}
+            />
+          </View>
+
+          <View style={styles.switchRow}>
+            <Text style={styles.label}>Show Xcasset Menu</Text>
+            <Switch
+              testID="toggle-xcasset-menu"
+              value={showXcassetMenu}
+              onValueChange={setShowXcassetMenu}
+            />
+          </View>
+
+          <View style={styles.switchRow}>
             <Text style={styles.label}>Show Fixed Spacer (20pt)</Text>
             <Switch
               testID="toggle-fixed-spacer"
@@ -213,15 +232,6 @@ export default function ToolbarScreen() {
                   testID="toggle-fixed-spacer-share-background"
                   value={fixedSpacerShareBackground}
                   onValueChange={setFixedSpacerShareBackground}
-                />
-              </View>
-
-              <View style={styles.switchRow}>
-                <Text style={styles.label}>Fixed Spacer Hides Shared Background</Text>
-                <Switch
-                  testID="toggle-fixed-spacer-hide-shared-background"
-                  value={fixedSpacerHideSharedBackground}
-                  onValueChange={setFixedSpacerHideSharedBackground}
                 />
               </View>
 
@@ -276,7 +286,7 @@ export default function ToolbarScreen() {
         {/* Search bar */}
         <Stack.Toolbar.SearchBarSlot
           hidden={!showSearchBar}
-          sharesBackground={sharesBackgroundSearchBar}
+          separateBackground={!sharesBackgroundSearchBar}
           hidesSharedBackground={hidesSharedBackgroundSearchBar}
         />
 
@@ -297,7 +307,6 @@ export default function ToolbarScreen() {
           <Stack.Toolbar.Spacer
             // hidden={!showFixedSpacer}
             sharesBackground={fixedSpacerShareBackground}
-            hidesSharedBackground={fixedSpacerHideSharedBackground}
             width={fixedSpacerWidth}
           />
         )}
@@ -353,6 +362,27 @@ export default function ToolbarScreen() {
             />
           </Pressable>
         </Stack.Toolbar.View>
+
+        {/* Xcasset button */}
+        <Stack.Toolbar.Button
+          hidden={!showXcassetButton}
+          tintColor={Color.ios.systemTeal}
+          iconRenderingMode="original"
+          onPress={() => Alert.alert('Xcasset Button', 'expo-logo pressed')}>
+          <Stack.Toolbar.Icon xcasset="expo-logo" />
+        </Stack.Toolbar.Button>
+
+        {/* Xcasset menu */}
+        {showXcassetMenu && (
+          <Stack.Toolbar.Menu title="Xcasset Menu" tintColor={Color.ios.systemTeal}>
+            <Stack.Toolbar.Icon xcasset="expo-transparent" />
+            <Stack.Toolbar.Label>Expo</Stack.Toolbar.Label>
+            <Stack.Toolbar.MenuAction
+              onPress={() => Alert.alert('Action', 'Action from xcasset menu')}>
+              Xcasset Action
+            </Stack.Toolbar.MenuAction>
+          </Stack.Toolbar.Menu>
+        )}
 
         {/* Nested menu with dynamic content */}
         {showMenu && (

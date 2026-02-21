@@ -6,6 +6,7 @@ import ActivityKit
 struct LiveActivityAttributes: ActivityAttributes {
   public struct ContentState: Codable, Hashable {
     var name: String
+    var props: String
   }
 }
 
@@ -17,10 +18,14 @@ public struct WidgetLiveActivity: Widget {
 
   public var body: some WidgetConfiguration {
     ActivityConfiguration(for: LiveActivityAttributes.self) { context in
-      let nodes = getLiveActivityNodes(forName: context.state.name)
-      return liveActivitySection("banner", source: context.activityID, nodes: nodes)
+      let nodes = getLiveActivityNodes(forName: context.state.name, props: context.state.props)
+      if #available(iOS 18.0, *) {
+        LiveActivityBanner(context: context, nodes: nodes)
+      } else {
+        liveActivitySection("banner", source: context.activityID, nodes: nodes)
+      }
     } dynamicIsland: { context in
-      let nodes = getLiveActivityNodes(forName: context.state.name)
+      let nodes = getLiveActivityNodes(forName: context.state.name, props: context.state.props)
       return DynamicIsland {
         expandedContent(source: context.activityID, nodes: nodes)
       } compactLeading: {
@@ -32,6 +37,7 @@ public struct WidgetLiveActivity: Widget {
       }
       .widgetURL(getLiveActivityUrl(forName: context.state.name))
     }
+    .supplementalActivityFamiliesIfAvailable()
   }
 
   @DynamicIslandExpandedContentBuilder
@@ -55,5 +61,15 @@ public struct WidgetLiveActivity: Widget {
       return AnyView(EmptyView())
     }
     return AnyView(WidgetsDynamicView(source: source, kind: .liveActivity, node: node))
+  }
+}
+
+extension WidgetConfiguration {
+  func supplementalActivityFamiliesIfAvailable() -> some WidgetConfiguration {
+    if #available(iOS 18.0, iOSApplicationExtension 18.0, *) {
+      return self.supplementalActivityFamilies([.small, .medium])
+    } else {
+      return self
+    }
   }
 }

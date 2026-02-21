@@ -6,6 +6,51 @@
 
 ### 🎉 New features
 
+### 🐛 Bug fixes
+
+### 💡 Others
+
+- Revert: Set default `resolver.useWatchman: undefined` value (enables it by default, as before) ([#43251](https://github.com/expo/expo/pull/43251) by [@kitten](https://github.com/kitten))
+- Replace `minimatch` with `picomatch` ([#43323](https://github.com/expo/expo/pull/43323) by [@kitten](https://github.com/kitten))
+
+## 55.0.7 — 2026-02-20
+
+### 💡 Others
+
+- Set default `resolver.useWatchman: undefined` value (enables it by default, as before) ([#43251](https://github.com/expo/expo/pull/43251) by [@kitten](https://github.com/kitten))
+
+## 55.0.6 — 2026-02-16
+
+_This version does not introduce any user-facing changes._
+
+## 55.0.5 — 2026-02-08
+
+### 💡 Others
+
+- Switch to `@expo/env`'s `parseEnv` helper ([#42763](https://github.com/expo/expo/pull/42763) by [@kitten](https://github.com/kitten))
+
+## 55.0.4 — 2026-02-03
+
+_This version does not introduce any user-facing changes._
+
+## 55.0.3 — 2026-01-26
+
+_This version does not introduce any user-facing changes._
+
+## 55.0.2 — 2026-01-23
+
+_This version does not introduce any user-facing changes._
+
+## 55.0.1 — 2026-01-22
+
+### 🐛 Bug fixes
+
+- Fix AST serialization for tree shaking with react compiler. ([#42445](https://github.com/expo/expo/pull/42445) by [@EvanBacon](https://github.com/EvanBacon))
+
+## 55.0.0 — 2026-01-21
+
+### 🎉 New features
+
 - Enable unstable worker threads for transformer by default ([#41714](https://github.com/expo/expo/pull/41714) by [@EvanBacon](https://github.com/EvanBacon))
 - Add `toString()` to image assets on web (excluding RSC) for easier asset resolution. ([#40895](https://github.com/expo/expo/pull/40895) by [@EvanBacon](https://github.com/EvanBacon))
 - Ensure `loader()` functions are stripped from client bundles ([#40670](https://github.com/expo/expo/pull/40670) by [@hassankhan](https://github.com/hassankhan))

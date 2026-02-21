@@ -1,16 +1,18 @@
 import { requireNativeView } from 'expo';
+import { type ColorValue } from 'react-native';
 
 import { ExpoModifier } from '../../types';
+import { createViewModifierEventListener } from '../modifiers/utils';
 
 export type AlertDialogButtonColors = {
   /**
    * The background color of the button.
    */
-  containerColor?: string;
+  containerColor?: ColorValue;
   /**
    * The text color of the button.
    */
-  contentColor?: string;
+  contentColor?: ColorValue;
 };
 
 export type AlertDialogProps = {
@@ -66,9 +68,18 @@ const AlertDialogNativeView: React.ComponentType<NativeAlertDialogProps> = requi
   'AlertDialogView'
 );
 
+function transformProps(props: AlertDialogProps): NativeAlertDialogProps {
+  const { modifiers, ...restProps } = props;
+  return {
+    modifiers,
+    ...(modifiers ? createViewModifierEventListener(modifiers) : undefined),
+    ...restProps,
+  };
+}
+
 /**
  * Renders an `AlertDialog` component.
  */
 export function AlertDialog(props: AlertDialogProps) {
-  return <AlertDialogNativeView {...props} />;
+  return <AlertDialogNativeView {...transformProps(props)} />;
 }

@@ -6,9 +6,35 @@
 
 ### 🎉 New features
 
-- Skip initializing git repo if inside another repo ([#42052](https://github.com/expo/expo/pull/42052) by [@EvanBacon](https://github.com/EvanBacon))
-
 ### 🐛 Bug fixes
+
+### 💡 Others
+
+## 3.6.5 — 2026-02-20
+
+_This version does not introduce any user-facing changes._
+
+## 3.6.4 — 2026-02-16
+
+_This version does not introduce any user-facing changes._
+
+## 3.6.3 — 2026-02-03
+
+_This version does not introduce any user-facing changes._
+
+## 3.6.2 — 2026-01-26
+
+_This version does not introduce any user-facing changes._
+
+## 3.6.1 — 2026-01-22
+
+_This version does not introduce any user-facing changes._
+
+## 3.6.0 — 2026-01-21
+
+### 🎉 New features
+
+- Skip initializing git repo if inside another repo ([#42052](https://github.com/expo/expo/pull/42052) by [@EvanBacon](https://github.com/EvanBacon))
 
 ### 💡 Others
 

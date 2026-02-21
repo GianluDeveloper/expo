@@ -37,18 +37,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.StackToolbar = void 0;
 exports.appendStackToolbarPropsToOptions = appendStackToolbarPropsToOptions;
 const react_1 = __importStar(require("react"));
-const react_2 = require("react");
 const StackToolbarButton_1 = require("./StackToolbarButton");
 const StackToolbarMenu_1 = require("./StackToolbarMenu");
 const StackToolbarSearchBarSlot_1 = require("./StackToolbarSearchBarSlot");
 const StackToolbarSpacer_1 = require("./StackToolbarSpacer");
 const StackToolbarView_1 = require("./StackToolbarView");
 const context_1 = require("./context");
+const toolbar_primitives_1 = require("./toolbar-primitives");
+const composition_options_1 = require("../../../fork/native-stack/composition-options");
 const NativeMenuContext_1 = require("../../../link/NativeMenuContext");
 const native_1 = require("../../../toolbar/native");
 const children_1 = require("../../../utils/children");
-const Screen_1 = require("../../../views/Screen");
-const common_primitives_1 = require("../common-primitives");
 /**
  * The component used to configure the stack toolbar.
  *
@@ -107,28 +106,38 @@ const common_primitives_1 = require("../common-primitives");
  * ```
  *
  * @platform ios
+ *
+ * > **Note:** If multiple instances of this component are rendered for the same screen,
+ * the last one rendered in the component tree takes precedence.
  */
-const StackToolbar = ({ children, placement = 'bottom', asChild }) => {
+const StackToolbar = (props) => {
     const parentPlacement = (0, context_1.useToolbarPlacement)();
     if (parentPlacement) {
         throw new Error(`Stack.Toolbar cannot be nested inside another Stack.Toolbar.`);
     }
-    if (placement === 'bottom') {
-        return (<context_1.ToolbarPlacementContext.Provider value="bottom">
-        <NativeMenuContext_1.NativeMenuContext value>
-          <native_1.RouterToolbarHost>{children}</native_1.RouterToolbarHost>
-        </NativeMenuContext_1.NativeMenuContext>
-      </context_1.ToolbarPlacementContext.Provider>);
+    if (props.placement === 'bottom' || !props.placement) {
+        return <StackToolbarBottom {...props}/>;
     }
-    // placement === 'left' or 'right'
-    // This component will only render when used inside a page
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const updatedOptions = (0, react_2.useMemo)(() => appendStackToolbarPropsToOptions({}, { children, placement, asChild }), [children, placement, asChild]);
-    return (<context_1.ToolbarPlacementContext.Provider value={placement}>
-      <Screen_1.Screen options={updatedOptions}/>
-    </context_1.ToolbarPlacementContext.Provider>);
+    return <StackToolbarHeader {...props} key={props.placement}/>;
 };
 exports.StackToolbar = StackToolbar;
+const StackToolbarBottom = ({ children }) => {
+    return (<context_1.ToolbarPlacementContext.Provider value="bottom">
+      <NativeMenuContext_1.NativeMenuContext value>
+        <native_1.RouterToolbarHost>{children}</native_1.RouterToolbarHost>
+      </NativeMenuContext_1.NativeMenuContext>
+    </context_1.ToolbarPlacementContext.Provider>);
+};
+const StackToolbarHeader = ({ children, placement, asChild }) => {
+    if (placement !== 'left' && placement !== 'right') {
+        throw new Error(`Invalid placement "${placement}" for Stack.Toolbar. Expected "left" or "right".`);
+    }
+    const options = (0, react_1.useMemo)(() => appendStackToolbarPropsToOptions({}, 
+    // satisfies ensures every prop is listed here
+    { children, placement, asChild }), [children, placement, asChild]);
+    (0, composition_options_1.useCompositionOption)(options);
+    return null;
+};
 function convertToolbarChildrenToUnstableItems(children, side) {
     const allChildren = react_1.default.Children.toArray(children);
     const actions = allChildren.filter((child) => (0, children_1.isChildOfType)(child, StackToolbarButton_1.StackToolbarButton) ||
@@ -207,8 +216,8 @@ exports.StackToolbar.MenuAction = StackToolbarMenu_1.StackToolbarMenuAction;
 exports.StackToolbar.SearchBarSlot = StackToolbarSearchBarSlot_1.StackToolbarSearchBarSlot;
 exports.StackToolbar.Spacer = StackToolbarSpacer_1.StackToolbarSpacer;
 exports.StackToolbar.View = StackToolbarView_1.StackToolbarView;
-exports.StackToolbar.Label = common_primitives_1.StackToolbarLabel;
-exports.StackToolbar.Icon = common_primitives_1.StackToolbarIcon;
-exports.StackToolbar.Badge = common_primitives_1.StackToolbarBadge;
+exports.StackToolbar.Label = toolbar_primitives_1.StackToolbarLabel;
+exports.StackToolbar.Icon = toolbar_primitives_1.StackToolbarIcon;
+exports.StackToolbar.Badge = toolbar_primitives_1.StackToolbarBadge;
 exports.default = exports.StackToolbar;
 //# sourceMappingURL=StackToolbarClient.js.map

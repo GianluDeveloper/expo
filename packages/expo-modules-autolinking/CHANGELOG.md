@@ -6,6 +6,47 @@
 
 ### 🎉 New features
 
+### 🐛 Bug fixes
+
+### 💡 Others
+
+## 55.0.7 — 2026-02-20
+
+_This version does not introduce any user-facing changes._
+
+## 55.0.6 — 2026-02-20
+
+### 💡 Others
+
+- Reduce memory retained after autolinking runs ([#42947](https://github.com/expo/expo/pull/42947) by [@kitten](https://github.com/kitten))
+- Add concurrency limits to IO-bound autolinking tasks ([#42968](https://github.com/expo/expo/pull/42968) by [@kitten](https://github.com/kitten))
+
+## 55.0.5 — 2026-02-16
+
+_This version does not introduce any user-facing changes._
+
+## 55.0.4 — 2026-02-16
+
+### 💡 Others
+
+- Replace `require-from-string` with `@expo/require-utils` ([#42884](https://github.com/expo/expo/pull/42884) by [@kitten](https://github.com/kitten))
+
+## 55.0.3 — 2026-02-03
+
+_This version does not introduce any user-facing changes._
+
+## 55.0.2 — 2026-01-26
+
+_This version does not introduce any user-facing changes._
+
+## 55.0.1 — 2026-01-22
+
+_This version does not introduce any user-facing changes._
+
+## 55.0.0 — 2026-01-21
+
+### 🎉 New features
+
 - Added support for cli command extensions in the interactive devtools menu ([#39598](https://github.com/expo/expo/pull/39598) by [@chrfalch](https://github.com/chrfalch))
 - [Android] Sync flavor dimensions and product flavors from app to expo module ([#40238](https://github.com/expo/expo/pull/40238) by [@kosmydel](https://github.com/kosmydel))
 - [Android] Added support for `services`. ([#41809](https://github.com/expo/expo/pull/41809) by [@lukmccall](https://github.com/lukmccall))

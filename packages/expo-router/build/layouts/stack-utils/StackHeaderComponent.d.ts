@@ -21,6 +21,17 @@ export interface StackHeaderProps {
      */
     asChild?: boolean;
     /**
+     * Whether the header should be transparent.
+     * When `true`, the header is absolutely positioned and content scrolls underneath.
+     *
+     * Auto-enabled when:
+     * - `style.backgroundColor` is 'transparent'
+     * - `blurEffect` is set (required for blur to work)
+     *
+     * @default false
+     */
+    transparent?: boolean;
+    /**
      * The blur effect to apply to the header background on iOS.
      * Common values include 'regular', 'prominent', 'systemMaterial', etc.
      *
@@ -88,7 +99,10 @@ export interface StackHeaderProps {
  *   );
  * }
  * ```
+ *
+ * > **Note:** If multiple instances of this component are rendered for the same screen,
+ * the last one rendered in the component tree takes precedence.
  */
-export declare function StackHeaderComponent(props: StackHeaderProps): import("react").JSX.Element;
+export declare function StackHeaderComponent({ children, hidden, asChild, transparent, blurEffect, style, largeStyle, }: StackHeaderProps): null;
 export declare function appendStackHeaderPropsToOptions(options: NativeStackNavigationOptions, props: StackHeaderProps): NativeStackNavigationOptions;
 //# sourceMappingURL=StackHeaderComponent.d.ts.map

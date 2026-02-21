@@ -1,6 +1,6 @@
 import { requireNativeView } from 'expo';
 import { Children, ReactElement, ReactNode, useMemo } from 'react';
-import { NativeSyntheticEvent, StyleProp, ViewStyle } from 'react-native';
+import { NativeSyntheticEvent, StyleProp, ViewStyle, type ColorValue } from 'react-native';
 
 import { SubmenuProps } from './Submenu';
 import { MenuElement, transformChildrenToElementArray } from './utils';
@@ -8,6 +8,7 @@ import { ModifierConfig } from '../../types';
 import { ButtonProps } from '../Button';
 import { PickerProps } from '../Picker';
 import { SwitchProps } from '../Switch';
+import { createViewModifierEventListener } from '../modifiers/utils';
 
 const MenuNativeView: React.ComponentType<NativeMenuProps> = requireNativeView(
   'ExpoUI',
@@ -50,7 +51,7 @@ export type ContextMenuProps = {
   /**
    * The color of the container holding the context menu items.
    */
-  color?: string;
+  color?: ColorValue;
 
   /**
    * Optional styles to apply to the `ContextMenu`.
@@ -101,6 +102,7 @@ export function Preview(props: { children: React.ReactNode }) {
 }
 
 function ContextMenu(props: ContextMenuProps) {
+  const { modifiers, ...restProps } = props;
   const eventHandlersMap: EventHandlers = {};
   const initialChildren = Children.map(
     props.children as any,
@@ -131,8 +133,9 @@ function ContextMenu(props: ContextMenuProps) {
       onContextMenuButtonPressed={createEventHandler('onPress')}
       onContextMenuSwitchValueChanged={createEventHandler('onValueChange')}
       onContextMenuPickerOptionSelected={createEventHandler('onOptionSelected')}
-      modifiers={props.modifiers}
-      {...props}>
+      modifiers={modifiers}
+      {...(modifiers ? createViewModifierEventListener(modifiers) : undefined)}
+      {...restProps}>
       {activationElement}
     </MenuNativeView>
   );

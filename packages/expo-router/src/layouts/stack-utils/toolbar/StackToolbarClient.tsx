@@ -1,7 +1,6 @@
 'use client';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import React, { Fragment, isValidElement, type ReactNode } from 'react';
-import { useMemo } from 'react';
+import React, { Fragment, isValidElement, useMemo, type ReactNode } from 'react';
 
 import {
   convertStackToolbarButtonPropsToRNHeaderItem,
@@ -19,11 +18,11 @@ import {
 } from './StackToolbarSpacer';
 import { convertStackToolbarViewPropsToRNHeaderItem, StackToolbarView } from './StackToolbarView';
 import { ToolbarPlacementContext, useToolbarPlacement, type ToolbarPlacement } from './context';
+import { StackToolbarBadge, StackToolbarIcon, StackToolbarLabel } from './toolbar-primitives';
+import { useCompositionOption } from '../../../fork/native-stack/composition-options';
 import { NativeMenuContext } from '../../../link/NativeMenuContext';
 import { RouterToolbarHost } from '../../../toolbar/native';
 import { isChildOfType } from '../../../utils/children';
-import { Screen } from '../../../views/Screen';
-import { StackToolbarBadge, StackToolbarIcon, StackToolbarLabel } from '../common-primitives';
 
 export interface StackToolbarProps {
   /**
@@ -111,35 +110,52 @@ export interface StackToolbarProps {
  * ```
  *
  * @platform ios
+ *
+ * > **Note:** If multiple instances of this component are rendered for the same screen,
+ * the last one rendered in the component tree takes precedence.
  */
-export const StackToolbar = ({ children, placement = 'bottom', asChild }: StackToolbarProps) => {
+export const StackToolbar = (props: StackToolbarProps) => {
   const parentPlacement = useToolbarPlacement();
   if (parentPlacement) {
     throw new Error(`Stack.Toolbar cannot be nested inside another Stack.Toolbar.`);
   }
 
-  if (placement === 'bottom') {
-    return (
-      <ToolbarPlacementContext.Provider value="bottom">
-        <NativeMenuContext value>
-          <RouterToolbarHost>{children}</RouterToolbarHost>
-        </NativeMenuContext>
-      </ToolbarPlacementContext.Provider>
+  if (props.placement === 'bottom' || !props.placement) {
+    return <StackToolbarBottom {...props} />;
+  }
+
+  return <StackToolbarHeader {...props} key={props.placement} />;
+};
+
+const StackToolbarBottom = ({ children }: StackToolbarProps) => {
+  return (
+    <ToolbarPlacementContext.Provider value="bottom">
+      <NativeMenuContext value>
+        <RouterToolbarHost>{children}</RouterToolbarHost>
+      </NativeMenuContext>
+    </ToolbarPlacementContext.Provider>
+  );
+};
+
+const StackToolbarHeader = ({ children, placement, asChild }: StackToolbarProps) => {
+  if (placement !== 'left' && placement !== 'right') {
+    throw new Error(
+      `Invalid placement "${placement}" for Stack.Toolbar. Expected "left" or "right".`
     );
   }
 
-  // placement === 'left' or 'right'
-  // This component will only render when used inside a page
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const updatedOptions = useMemo(
-    () => appendStackToolbarPropsToOptions({}, { children, placement, asChild }),
+  const options = useMemo(
+    () =>
+      appendStackToolbarPropsToOptions(
+        {},
+        // satisfies ensures every prop is listed here
+        { children, placement, asChild } satisfies Record<keyof StackToolbarProps, unknown>
+      ),
     [children, placement, asChild]
   );
-  return (
-    <ToolbarPlacementContext.Provider value={placement}>
-      <Screen options={updatedOptions} />
-    </ToolbarPlacementContext.Provider>
-  );
+  useCompositionOption(options);
+
+  return null;
 };
 
 function convertToolbarChildrenToUnstableItems(

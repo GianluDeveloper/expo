@@ -2,6 +2,76 @@
 
 ## Unpublished
 
+### 🛠 Breaking changes
+
+### 🎉 New features
+
+### 🐛 Bug fixes
+
+### 💡 Others
+
+## 55.0.0-preview.7 — 2026-02-20
+
+### 🎉 New features
+
+- [iOS] Added per-axis `scaleEffect` support (`{ x, y }`) to view modifiers. ([#43228](https://github.com/expo/expo/pull/43228) by [@ramonclaudio](https://github.com/ramonclaudio))
+
+### 💡 Others
+
+- [jetpack-compose] Added more views and modifiers. ([#42734](https://github.com/expo/expo/pull/42734) by [@kudo](https://github.com/kudo))
+
+## 55.0.0-preview.6 — 2026-02-16
+
+### 🎉 New features
+
+- [iOS] - Support `Section` `footer` prop with `title` prop. ([#42966](https://github.com/expo/expo/pull/42966) by [@nishan](https://github.com/intergalacticspacehighway))
+- [iOS] Added `contentTransition` modifier. ([#42980](https://github.com/expo/expo/pull/42980) by [@nishan](https://github.com/intergalacticspacehighway))
+- [iOS] Added `ScrollView` component. ([#43162](https://github.com/expo/expo/pull/43162) by [@nishan](https://github.com/intergalacticspacehighway))
+- [iOS] Added `selection` and `onSelectionChange` to `presentationDetents` modifier for programmatic control of bottom sheet detents. ([#42910](https://github.com/expo/expo/pull/42910) by [@nishan](https://github.com/intergalacticspacehighway))
+
+### 🐛 Bug fixes
+
+- [iOS] Fix `ColorPicker` `onSelectionChange` callback never firing due to native event name mismatch. ([#43180](https://github.com/expo/expo/pull/43180) by [@nishan](https://github.com/intergalacticspacehighway))
+- [iOS] Fix `clipShape` and `mask` modifiers silently falling through to `Rectangle()` for `capsule` and `ellipse` shapes. ([#43158](https://github.com/expo/expo/pull/43158) by [@ramonclaudio](https://github.com/ramonclaudio))
+- [iOS] Fix rendering `0` in SwiftUI Text. ([#43036](https://github.com/expo/expo/pull/43036) by [@jakex7](https://github.com/jakex7))
+- [iOS] Set initial state in `init` instead of `onAppear` in `DatePicker`, `Section`, `DisclosureGroup`, `Popover`, and `ColorPicker` components. ([#42933](https://github.com/expo/expo/pull/42933) by [@nishan](https://github.com/intergalacticspacehighway))
+- [iOS] Fix `foregroundStyle` hierarchical style not being applied correctly. ([#43233](https://github.com/expo/expo/pull/43233) by [@nishan](https://github.com/intergalacticspacehighway))
+
+## 55.0.0-preview.5 — 2026-02-08
+
+### 🐛 Bug fixes
+
+- [iOS] Fixed missing dependency on RCTFabric in ExpoUI podspec. ([#42901](https://github.com/expo/expo/pull/42901) by [@chrfalch](https://github.com/chrfalch))
+- [iOS] Fix initial state not being set in `Picker`, `Slider`, `Toggle`, and `List` components. ([#42933](https://github.com/expo/expo/pull/42933) by [@nishan](https://github.com/intergalacticspacehighway))
+
+## 55.0.0-preview.4 — 2026-02-03
+
+### 🛠 Breaking changes
+
+- [iOS] Renamed `ignoreSafeAreaKeyboardInsets` to `ignoreSafeArea` on `Host` component. It now accepts `'all'` or `'keyboard'` instead of a boolean. ([#42598](https://github.com/expo/expo/pull/42598) by [@nishan](https://github.com/intergalacticspacehighway))
+
+### 💡 Others
+
+- [iOS] Remove leftover `Switch` TypeScript exports from swift-ui package. Use `Toggle` instead. ([#42571](https://github.com/expo/expo/pull/42571) by [@shubh73](https://github.com/shubh73))
+- Improved Jetpack Compose integration for Expo UI. ([#42450](https://github.com/expo/expo/pull/42450) by [@kudo](https://github.com/kudo))
+- [iOS] Added `contentShape` modifier for SwiftUI ([#42813](https://github.com/expo/expo pull/42813) by [@sam-shubham](https://github.com/sam-shubham))
+
+## 55.0.0-beta.3 — 2026-01-27
+
+_This version does not introduce any user-facing changes._
+
+## 55.0.0-beta.2 — 2026-01-26
+
+### 🎉 New features
+
+- [iOS] Add Markdown support to the Text component. ([#42448](https://github.com/expo/expo/pull/42448) by [@Pflaumenbaum](https://github.com/Pflaumenbaum))
+
+## 55.0.0-beta.1 — 2026-01-22
+
+_This version does not introduce any user-facing changes._
+
+## 55.0.0-beta.0 — 2026-01-21
+
 - [ios] - Fix modifiers import path in the example ([#41811](https://github.com/expo/expo/pull/41811) by [@pchalupa](https://github.com/pchalupa))
 
 ### 🛠 Breaking changes
@@ -33,6 +103,7 @@
 - [iOS] Remove presentation props from `BottomSheet` and add equivalent modifiers ([#42029](https://github.com/expo/expo/pull/42029) by [@nishan](https://github.com/intergalacticspacehighway))
 - [iOS] - Nested `Text` support ([#41707](https://github.com/expo/expo/pull/41707) by [@intergalacticspacehighway](https://github.com/intergalacticspacehighway))
 - [iOS] Add containerRelativeFrame modifier. ([#42237](https://github.com/expo/expo/pull/42237) by [@jakex7](https://github.com/jakex7))
+- [iOS] Expose `ViewModifierRegistry.register` and `ViewModifierRegistry.unregister` for custom modifiers. ([#42350](https://github.com/expo/expo/pull/42350) by [@nishan](https://github.com/intergalacticspacehighway))
 
 ### 🐛 Bug fixes
 
@@ -40,6 +111,7 @@
 - [jetpack-compose] Fixed `Picker` crash when selecting an option. ([#41622](https://github.com/expo/expo/pull/41622) by [@kimchi-developer](https://github.com/kimchi-developer))
 - [jetpack-compose] Fixed `Carousel` not displaying items. ([#41622](https://github.com/expo/expo/pull/41622) by [@kimchi-developer](https://github.com/kimchi-developer))
 - [jetpack-compose] Fixed modifiers not being applied correctly. ([#41622](https://github.com/expo/expo/pull/41622) by [@kimchi-developer](https://github.com/kimchi-developer))
+- [iOS] Skip rendering `label` as `Menu` item.
 
 ### 💡 Others
 

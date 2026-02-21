@@ -12,8 +12,10 @@ export interface ServerRenderModule {
 }
 
 export interface RenderOptions {
-  loader?: { data: unknown };
+  loader?: { data: unknown; key: string };
 }
+
+export type SsrRenderFn = (request: Request, options?: RenderOptions) => Promise<string>;
 
 /** Module exported from loader bundle, typically `_expo/loaders/[ROUTE].js` */
 export interface LoaderModule {
@@ -22,5 +24,3 @@ export interface LoaderModule {
     params: Record<string, string>
   ): Promise<unknown> | unknown;
 }
-
-export type SsrRenderFn = (request: Request, options?: RenderOptions) => Promise<string>;

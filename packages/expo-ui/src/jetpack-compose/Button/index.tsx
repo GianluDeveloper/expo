@@ -1,9 +1,11 @@
 import { requireNativeView } from 'expo';
+import { type ColorValue } from 'react-native';
 
 import { MaterialIcon } from './types';
 import { ExpoModifier, ViewEvent } from '../../types';
 import { getTextFromChildren } from '../../utils';
 import { parseJSXShape, ShapeJSXElement, ShapeRecordProps } from '../Shape';
+import { createViewModifierEventListener } from '../modifiers/utils';
 
 /**
  * The built-in button styles available on Android.
@@ -16,10 +18,10 @@ export type ButtonVariant = 'default' | 'bordered' | 'borderless' | 'outlined' |
  * Colors for button's core elements.
  */
 export type ButtonElementColors = {
-  containerColor?: string;
-  contentColor?: string;
-  disabledContainerColor?: string;
-  disabledContentColor?: string;
+  containerColor?: ColorValue;
+  contentColor?: ColorValue;
+  disabledContainerColor?: ColorValue;
+  disabledContentColor?: ColorValue;
 };
 
 export type ButtonProps = {
@@ -59,7 +61,7 @@ export type ButtonProps = {
   /**
    * Button color.
    */
-  color?: string;
+  color?: ColorValue;
   shape?: ShapeJSXElement;
   /**
    * Disabled state of the button.
@@ -95,12 +97,23 @@ const ButtonNativeView: React.ComponentType<NativeButtonProps> = requireNativeVi
  * @hidden
  */
 export function transformButtonProps(props: ButtonProps): NativeButtonProps {
-  const { children, onPress, leadingIcon, trailingIcon, systemImage, shape, ...restProps } = props;
+  const {
+    children,
+    onPress,
+    leadingIcon,
+    trailingIcon,
+    systemImage,
+    shape,
+    modifiers,
+    ...restProps
+  } = props;
 
   // Handle backward compatibility: systemImage maps to leadingIcon
   const finalLeadingIcon = leadingIcon ?? systemImage;
 
   return {
+    modifiers,
+    ...(modifiers ? createViewModifierEventListener(modifiers) : undefined),
     ...restProps,
     text: getTextFromChildren(children) ?? '',
     children: getTextFromChildren(children) !== undefined ? undefined : children,
